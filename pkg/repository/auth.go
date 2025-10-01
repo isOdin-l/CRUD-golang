@@ -1,6 +1,10 @@
 package repository
 
 import (
+	"context"
+	"fmt"
+
+	"github.com/isOdin/RestApi/internal/storage/postgresql"
 	"github.com/isOdin/RestApi/internal/storage/structure"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -14,5 +18,14 @@ func NewAuthRepository(db *pgxpool.Pool) *AuthRepository {
 }
 
 func (r *AuthRepository) CreateUser(user structure.User) (int, error) {
-	return 0, nil
+	var id int
+
+	queryString := fmt.Sprintf("INSERT INTO %s (name, username, password_hash) values ($1, $2, $3) RETURNING id", postgresql.UsersTable)
+	row := r.db.QueryRow(context.Background(), queryString, user.Name, user.Username, user.Password)
+
+	if err := row.Scan(&id); err != nil {
+		return -1, err
+	}
+
+	return id, nil
 }

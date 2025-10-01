@@ -45,7 +45,7 @@ func main() {
 
 	// Server start
 	server := server.New()
-	if err := server.Run(viper.GetString("server.port"), r); err != nil {
+	if err := server.Run(viper.GetString("SERVER_PORT"), r); err != nil {
 		logrus.Fatalf("error while running server %s", err.Error())
 	}
 }

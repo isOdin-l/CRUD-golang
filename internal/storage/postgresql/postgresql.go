@@ -7,6 +7,14 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
+const (
+	UsersTable      string = "users"
+	todoListsTable  string = "todo_lists"
+	todoItemsTable  string = "todo_items"
+	usersListsTable string = "users_lists"
+	listsItemsTable string = "lists_items"
+)
+
 type Config struct {
 	Host     string
 	Port     string
