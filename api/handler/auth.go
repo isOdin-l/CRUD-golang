@@ -1,23 +1,36 @@
 package handler
 
 import (
+	"encoding/json"
 	"net/http"
 
+	"github.com/isOdin/RestApi/internal/storage/structure"
 	"github.com/isOdin/RestApi/pkg/service"
+	"github.com/sirupsen/logrus"
 )
 
 type Auth struct {
-	service *service.Service
+	service service.Authorization
 }
 
-func NewAuthHandler(service *service.Service) *Auth {
+func NewAuthHandler(service service.Authorization) *Auth {
 	return &Auth{service: service}
 }
 
-func (a *Auth) SignUpHandler(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("Sign Up"))
+func (h *Auth) SignUpHandler(w http.ResponseWriter, r *http.Request) {
+	var reqUser structure.User
+	if err := json.NewDecoder(r.Body).Decode(&reqUser); err != nil {
+		logrus.Errorf("Invalid request body")
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	_, err := h.service.CreateUser(reqUser)
+	if err != nil {
+		logrus.Errorf("Bad things")
+	}
 }
 
-func (a *Auth) SignInHandler(w http.ResponseWriter, r *http.Request) {
+func (h *Auth) SignInHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("Sign In"))
 }

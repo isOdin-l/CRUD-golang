@@ -1,9 +1,6 @@
 package main
 
 import (
-	"fmt"
-	"log"
-
 	"github.com/isOdin/RestApi/api/handler"
 	"github.com/isOdin/RestApi/internal/router"
 	"github.com/isOdin/RestApi/internal/server"
@@ -11,12 +8,14 @@ import (
 	"github.com/isOdin/RestApi/pkg/repository"
 	"github.com/isOdin/RestApi/pkg/service"
 	"github.com/joho/godotenv"
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 )
 
 func main() {
+	logrus.SetFormatter(new(logrus.JSONFormatter))
 	if err := initConfig(); err != nil {
-		log.Fatalf("error initializing configs: %s", err.Error())
+		logrus.Fatalf("error initializing configs: %s", err.Error())
 	}
 
 	// Database: postgresql
@@ -28,34 +27,31 @@ func main() {
 		DBName:   viper.GetString("DB_NAME"),
 	})
 	if err != nil {
-		log.Fatalf("failed to initialize db: %s", err.Error())
+		logrus.Fatalf("failed to initialize db: %s", err.Error())
 	}
 	defer DB.Close()
 
-	// Repositories
+	// Repository
 	repository := repository.NewRepository(DB)
 
-	// Services
+	// Service
 	service := service.NewService(repository)
 
-	// Handlers
-	authHandler := handler.NewAuthHandler(service)
-	itemHandler := handler.NewItemHandler(service)
-	listHandler := handler.NewListHandler(service)
+	// Handler
+	handler := handler.NewHandler(service)
 
 	// Router
-	r := router.NewRouter(listHandler, itemHandler, authHandler)
+	r := router.NewRouter(handler)
 
 	// Server start
 	server := server.New()
 	if err := server.Run(viper.GetString("server.port"), r); err != nil {
-		log.Fatalf("error while running server %s", err.Error())
+		logrus.Fatalf("error while running server %s", err.Error())
 	}
 }
 
 func initConfig() error {
 	if err := godotenv.Load("./configs/.env"); err != nil {
-		fmt.Println(".env file not found, using environment variables only")
 		return err
 	}
 

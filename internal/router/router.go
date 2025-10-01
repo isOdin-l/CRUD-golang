@@ -6,7 +6,7 @@ import (
 	"github.com/isOdin/RestApi/api/handler"
 )
 
-func NewRouter(listHandler *handler.List, itemHandler *handler.Item, authHandler *handler.Auth) chi.Router {
+func NewRouter(h *handler.Handler) chi.Router {
 	r := chi.NewRouter()
 
 	// Middlewares
@@ -17,25 +17,25 @@ func NewRouter(listHandler *handler.List, itemHandler *handler.Item, authHandler
 
 	// /auth/...
 	r.Route("/auth", func(r chi.Router) {
-		r.Post("/sign-up", authHandler.SignUpHandler)
-		r.Post("/sign-in", authHandler.SignInHandler)
+		r.Post("/sign-up", h.Authorization.SignUpHandler)
+		r.Post("/sign-in", h.Authorization.SignInHandler)
 	})
 
 	// api/...
 	r.Route("/api", func(r chi.Router) {
 		r.Route("/lists", func(r chi.Router) { // api/lists/...
-			r.Post("/", listHandler.CreateList)
-			r.Get("/", listHandler.GetAllLists)
-			r.Get("/{id}", listHandler.GetListById)
-			r.Put("/{id}", listHandler.UpdateList)
-			r.Delete("/{id}", listHandler.DeleteList)
+			r.Post("/", h.TodoList.CreateList)
+			r.Get("/", h.TodoList.GetAllLists)
+			r.Get("/{id}", h.TodoList.GetListById)
+			r.Put("/{id}", h.TodoList.UpdateList)
+			r.Delete("/{id}", h.TodoList.DeleteList)
 
 			r.Route("/items", func(r chi.Router) { // api/lists/items/...
-				r.Post("/", itemHandler.CreateItem)
-				r.Get("/", itemHandler.GetAllItems)
-				r.Get("/{item_id}", itemHandler.GetItemById)
-				r.Put("/{item_id}", itemHandler.UpdateItem)
-				r.Delete("/{item_id}", itemHandler.DeleteItem)
+				r.Post("/", h.TodoItem.CreateItem)
+				r.Get("/", h.TodoItem.GetAllItems)
+				r.Get("/{item_id}", h.TodoItem.GetItemById)
+				r.Put("/{item_id}", h.TodoItem.UpdateItem)
+				r.Delete("/{item_id}", h.TodoItem.DeleteItem)
 			})
 		})
 	})

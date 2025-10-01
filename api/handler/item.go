@@ -7,29 +7,29 @@ import (
 )
 
 type Item struct {
-	service *service.Service
+	service service.TodoItem
 }
 
-func NewItemHandler(service *service.Service) *Item {
+func NewItemHandler(service service.TodoItem) *Item {
 	return &Item{service: service}
 }
 
-func (i *Item) CreateItem(w http.ResponseWriter, r *http.Request) {
+func (h *Item) CreateItem(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("Create list"))
 }
 
-func (i *Item) GetAllItems(w http.ResponseWriter, r *http.Request) {
+func (h *Item) GetAllItems(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("get All Lists"))
 }
 
-func (i *Item) GetItemById(w http.ResponseWriter, r *http.Request) {
+func (h *Item) GetItemById(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("getListById"))
 }
 
-func (i *Item) UpdateItem(w http.ResponseWriter, r *http.Request) {
+func (h *Item) UpdateItem(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("UpdateList"))
 }
 
-func (i *Item) DeleteItem(w http.ResponseWriter, r *http.Request) {
+func (h *Item) DeleteItem(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("DeleteList"))
 }

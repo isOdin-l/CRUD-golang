@@ -7,29 +7,29 @@ import (
 )
 
 type List struct {
-	service *service.Service
+	service service.TodoList
 }
 
-func NewListHandler(service *service.Service) *List {
+func NewListHandler(service service.TodoList) *List {
 	return &List{service: service}
 }
 
-func (l *List) CreateList(w http.ResponseWriter, r *http.Request) {
+func (h *List) CreateList(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("Create list"))
 }
 
-func (l *List) GetAllLists(w http.ResponseWriter, r *http.Request) {
+func (h *List) GetAllLists(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("get All Lists"))
 }
 
-func (l *List) GetListById(w http.ResponseWriter, r *http.Request) {
+func (h *List) GetListById(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("getListById"))
 }
 
-func (l *List) UpdateList(w http.ResponseWriter, r *http.Request) {
+func (h *List) UpdateList(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("UpdateList"))
 }
 
-func (l *List) DeleteList(w http.ResponseWriter, r *http.Request) {
+func (h *List) DeleteList(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("DeleteList"))
 }
