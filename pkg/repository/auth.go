@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/isOdin/RestApi/internal/storage/postgresql"
-	"github.com/isOdin/RestApi/internal/storage/structure"
+	"github.com/isOdin/RestApi/internal/types/databaseTypes"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -17,9 +17,10 @@ func NewAuthRepository(db *pgxpool.Pool) *AuthRepository {
 	return &AuthRepository{db: db}
 }
 
-func (r *AuthRepository) CreateUser(user structure.User) (int, error) {
+func (r *AuthRepository) CreateUser(user databaseTypes.User) (int, error) {
 	var id int
 
+	// TODO: change to ORM
 	queryString := fmt.Sprintf("INSERT INTO %s (name, username, password_hash) values ($1, $2, $3) RETURNING id", postgresql.UsersTable)
 	row := r.db.QueryRow(context.Background(), queryString, user.Name, user.Username, user.Password)
 
@@ -28,4 +29,13 @@ func (r *AuthRepository) CreateUser(user structure.User) (int, error) {
 	}
 
 	return id, nil
+}
+
+func (r *AuthRepository) GetUser(username, password_hash string) (databaseTypes.User, error) {
+	var user databaseTypes.User
+
+	queryString := fmt.Sprintf("SELECT id, name, username, password_hash FROM %s WHERE username = $1 AND password_hash = $2 LIMIT 1", postgresql.UsersTable)
+	err := r.db.QueryRow(context.Background(), queryString, username, password_hash).Scan(&user.Id, &user.Name, &user.Username, &user.Password)
+
+	return user, err
 }

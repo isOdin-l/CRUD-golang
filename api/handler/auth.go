@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"github.com/go-chi/render"
-	"github.com/isOdin/RestApi/internal/storage/structure"
+	"github.com/isOdin/RestApi/internal/types/databaseTypes"
 	"github.com/isOdin/RestApi/pkg/service"
 	"github.com/sirupsen/logrus"
 )
@@ -19,10 +19,10 @@ func NewAuthHandler(service service.Authorization) *Auth {
 }
 
 func (h *Auth) SignUpHandler(w http.ResponseWriter, r *http.Request) {
-	var reqUser structure.User
+	var reqUser databaseTypes.User
 	if err := json.NewDecoder(r.Body).Decode(&reqUser); err != nil { // TODO: переделать с render
-		logrus.Errorf("Invalid request body")
-		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		logrus.Errorf(err.Error())
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
@@ -39,5 +39,21 @@ func (h *Auth) SignUpHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Auth) SignInHandler(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("Sign In"))
+	var reqUser databaseTypes.User
+	if err := json.NewDecoder(r.Body).Decode(&reqUser); err != nil { // TODO: переделать с render
+		logrus.Errorf(err.Error())
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	token, err := h.service.GenerateToken(reqUser.Username, reqUser.Password)
+	if err != nil {
+		logrus.Errorf(err.Error())
+		http.Error(w, err.Error(), http.StatusInternalServerError) // TODO: cубрать дублирование кода
+		return
+	}
+
+	render.JSON(w, r, map[string]interface{}{
+		"token": token,
+	})
 }

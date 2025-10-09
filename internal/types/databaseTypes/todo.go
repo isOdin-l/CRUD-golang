@@ -1,4 +1,4 @@
-package structure
+package databaseTypes
 
 type TodoList struct {
 	Id          int    `json:"id"`

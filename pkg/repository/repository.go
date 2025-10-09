@@ -1,12 +1,13 @@
 package repository
 
 import (
-	"github.com/isOdin/RestApi/internal/storage/structure"
+	"github.com/isOdin/RestApi/internal/types/databaseTypes"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type Authorization interface {
-	CreateUser(user structure.User) (int, error)
+	CreateUser(user databaseTypes.User) (int, error)
+	GetUser(username, password string) (databaseTypes.User, error)
 }
 
 type TodoList interface {

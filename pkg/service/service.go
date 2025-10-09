@@ -1,12 +1,13 @@
 package service
 
 import (
-	"github.com/isOdin/RestApi/internal/storage/structure"
+	"github.com/isOdin/RestApi/internal/types/databaseTypes"
 	"github.com/isOdin/RestApi/pkg/repository"
 )
 
 type Authorization interface {
-	CreateUser(user structure.User) (int, error)
+	CreateUser(user databaseTypes.User) (int, error)
+	GenerateToken(username, password string) (string, error)
 }
 
 type TodoList interface {

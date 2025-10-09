@@ -3,6 +3,7 @@ package handler
 import (
 	"net/http"
 
+	"github.com/go-chi/render"
 	"github.com/isOdin/RestApi/pkg/service"
 )
 
@@ -15,7 +16,10 @@ func NewListHandler(service service.TodoList) *List {
 }
 
 func (h *List) CreateList(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("Create list"))
+	userId := r.Context().Value("userId")
+	render.JSON(w, r, map[string]interface{}{
+		"userId": userId,
+	})
 }
 
 func (h *List) GetAllLists(w http.ResponseWriter, r *http.Request) {
