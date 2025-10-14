@@ -3,7 +3,9 @@ package handler
 import (
 	"encoding/json"
 	"net/http"
+	"strconv"
 
+	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/render"
 	"github.com/isOdin/RestApi/internal/types/databaseTypes"
 	"github.com/isOdin/RestApi/pkg/service"
@@ -59,7 +61,27 @@ func (h *List) GetAllLists(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *List) GetListById(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("getListById"))
+
+	userId, ok := r.Context().Value("userId").(int)
+	if !ok {
+		http.Error(w, "User id not found", http.StatusInternalServerError)
+		return
+	}
+
+	listId, err := strconv.Atoi(chi.URLParam(r, "id"))
+	if err != nil {
+		http.Error(w, "Invalid id param", http.StatusInternalServerError)
+		return
+	}
+
+	list, err := h.service.GetListById(userId, listId)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	render.JSON(w, r, map[string]interface{}{
+		"list": list,
+	})
 }
 
 func (h *List) UpdateList(w http.ResponseWriter, r *http.Request) {

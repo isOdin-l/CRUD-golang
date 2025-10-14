@@ -55,3 +55,12 @@ func (r *TodoListRepository) GetAllLists(userId int) (*[]databaseTypes.TodoList,
 
 	return &lists, err
 }
+
+func (r *TodoListRepository) GetListById(userId, listId int) (*databaseTypes.TodoList, error) {
+	var list databaseTypes.TodoList
+
+	getListByIdQuery := fmt.Sprintf("SELECT tl.id, tl.title, tl.description FROM %s tl INNER JOIN %s ul on tl.id = ul.list_id WHERE ul.user_id = $1 AND ul.list_id = $2", databaseTypes.TableTodoLists, databaseTypes.TableUsersLists)
+	err := r.db.QueryRow(context.Background(), getListByIdQuery, userId, listId).Scan(&list.Id, &list.Title, &list.Description)
+
+	return &list, err
+}

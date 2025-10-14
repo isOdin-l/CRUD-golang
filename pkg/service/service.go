@@ -13,6 +13,7 @@ type Authorization interface {
 type TodoList interface {
 	CreateList(userId int, list databaseTypes.TodoList) (int, error)
 	GetAllLists(userId int) (*[]databaseTypes.TodoList, error)
+	GetListById(userId, listId int) (*databaseTypes.TodoList, error)
 }
 
 type TodoItem interface {
