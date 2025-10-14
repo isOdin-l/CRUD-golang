@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/isOdin/RestApi/internal/types/databaseTypes"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -39,4 +40,18 @@ func (r *TodoListRepository) CreateList(userId int, list databaseTypes.TodoList)
 	}
 
 	return todoListid, tx.Commit(context.Background())
+}
+
+func (r *TodoListRepository) GetAllLists(userId int) (*[]databaseTypes.TodoList, error) {
+	var lists []databaseTypes.TodoList
+
+	getAllListsQuery := fmt.Sprintf("SELECT tl.id, tl.title, tl.description FROM %s tl INNER JOIN %s ul on tl.id = ul.list_id WHERE ul.user_id = $1", databaseTypes.TableTodoLists, databaseTypes.TableUsersLists)
+	rowsGetAllLists, err := r.db.Query(context.Background(), getAllListsQuery, userId)
+	if err != nil {
+		return &lists, err
+	}
+
+	lists, err = pgx.CollectRows(rowsGetAllLists, pgx.RowToStructByName[databaseTypes.TodoList])
+
+	return &lists, err
 }

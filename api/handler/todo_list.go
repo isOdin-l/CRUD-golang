@@ -53,9 +53,9 @@ func (h *List) GetAllLists(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	// render.JSON(w, r, map[string]interface{}{
-	// 	"listId": listId,
-	// })
+	render.JSON(w, r, map[string]interface{}{
+		"lists": lists,
+	})
 }
 
 func (h *List) GetListById(w http.ResponseWriter, r *http.Request) {
