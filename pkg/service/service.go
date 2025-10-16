@@ -2,6 +2,7 @@ package service
 
 import (
 	"github.com/isOdin/RestApi/internal/types/databaseTypes"
+	"github.com/isOdin/RestApi/internal/types/reqTypes"
 	"github.com/isOdin/RestApi/pkg/repository"
 )
 
@@ -14,6 +15,8 @@ type TodoList interface {
 	CreateList(userId int, list databaseTypes.TodoList) (int, error)
 	GetAllLists(userId int) (*[]databaseTypes.TodoList, error)
 	GetListById(userId, listId int) (*databaseTypes.TodoList, error)
+	DeleteList(userId, listId int) error
+	UpdateList(userId, listId int, updList reqTypes.UpdateList) error
 }
 
 type TodoItem interface {

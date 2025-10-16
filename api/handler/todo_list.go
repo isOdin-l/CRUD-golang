@@ -8,6 +8,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/render"
 	"github.com/isOdin/RestApi/internal/types/databaseTypes"
+	"github.com/isOdin/RestApi/internal/types/reqTypes"
 	"github.com/isOdin/RestApi/pkg/service"
 )
 
@@ -61,7 +62,6 @@ func (h *List) GetAllLists(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *List) GetListById(w http.ResponseWriter, r *http.Request) {
-
 	userId, ok := r.Context().Value("userId").(int)
 	if !ok {
 		http.Error(w, "User id not found", http.StatusInternalServerError)
@@ -85,9 +85,49 @@ func (h *List) GetListById(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *List) UpdateList(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("UpdateList"))
+	userId, ok := r.Context().Value("userId").(int)
+	if !ok {
+		http.Error(w, "User id not found", http.StatusInternalServerError)
+		return
+	}
+
+	listId, err := strconv.Atoi(chi.URLParam(r, "id"))
+	if err != nil {
+		http.Error(w, "Invalid id param", http.StatusInternalServerError)
+		return
+	}
+
+	var reqUpdList reqTypes.UpdateList
+	if err := json.NewDecoder(r.Body).Decode(&reqUpdList); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	err = h.service.UpdateList(userId, listId, reqUpdList)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	render.JSON(w, r, map[string]interface{}{})
 }
 
 func (h *List) DeleteList(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("DeleteList"))
+	userId, ok := r.Context().Value("userId").(int)
+	if !ok {
+		http.Error(w, "User id not found", http.StatusInternalServerError)
+		return
+	}
+
+	listId, err := strconv.Atoi(chi.URLParam(r, "id"))
+	if err != nil {
+		http.Error(w, "Invalid id param", http.StatusInternalServerError)
+		return
+	}
+
+	err = h.service.DeleteList(userId, listId)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	render.JSON(w, r, map[string]interface{}{})
 }

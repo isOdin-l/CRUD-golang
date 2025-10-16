@@ -64,3 +64,18 @@ func (r *TodoListRepository) GetListById(userId, listId int) (*databaseTypes.Tod
 
 	return &list, err
 }
+
+func (r *TodoListRepository) DeleteList(userId, listId int) error {
+	queryDeleteList := fmt.Sprintf("DELETE FROM %s tl USING %s ul WHERE tl.id = ul.list_id AND ul.user_id=$1 AND ul.list_id=$2", databaseTypes.TableTodoLists, databaseTypes.TableUsersLists)
+	_, err := r.db.Exec(context.Background(), queryDeleteList, userId, listId)
+
+	return err
+}
+
+func (r *TodoListRepository) UpdateList(setArgs *[]interface{}, argId int, setValuesQuery *string) error {
+	queryUpdateList := fmt.Sprintf("UPDATE %s tl SET %s FROM %s ul WHERE tl.id = ul.list_id AND ul.list_id=$%d AND ul.user_id=$%d", databaseTypes.TableTodoLists, *setValuesQuery, databaseTypes.TableUsersLists, argId, argId+1)
+
+	_, err := r.db.Exec(context.Background(), queryUpdateList, *setArgs...)
+
+	return err
+}

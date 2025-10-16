@@ -14,6 +14,8 @@ type TodoList interface {
 	CreateList(userId int, list databaseTypes.TodoList) (int, error)
 	GetAllLists(userId int) (*[]databaseTypes.TodoList, error)
 	GetListById(userId, listId int) (*databaseTypes.TodoList, error)
+	DeleteList(userId, listId int) error
+	UpdateList(setArgs *[]interface{}, argId int, setValuesQuery *string) error
 }
 
 type TodoItem interface {
