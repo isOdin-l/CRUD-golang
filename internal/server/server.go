@@ -4,9 +4,13 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
 	"time"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/sirupsen/logrus"
 )
 
 type Server struct {
@@ -29,6 +33,19 @@ func (s *Server) Run(port string, router chi.Router) error {
 	return s.httpServer.ListenAndServe()
 }
 
-func (s *Server) Shutdown(ctx context.Context) error {
-	return s.httpServer.Shutdown(ctx)
+func (s *Server) GracefulShutdown(ctx context.Context) {
+	quitChannel := make(chan os.Signal, 1)
+
+	signal.Notify(quitChannel, syscall.SIGTERM, syscall.SIGINT)
+	<-quitChannel
+
+	logrus.Print("Server is shutting down")
+
+	err := s.httpServer.Shutdown(ctx)
+
+	if err != http.ErrServerClosed && err != nil {
+		logrus.Errorf("error on server shutting down: %s", err.Error())
+	} else {
+		logrus.Info("Server grecefully stoped")
+	}
 }

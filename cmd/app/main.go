@@ -1,6 +1,8 @@
 package main
 
 import (
+	"context"
+
 	"github.com/isOdin/RestApi/api/handler"
 	"github.com/isOdin/RestApi/internal/router"
 	"github.com/isOdin/RestApi/internal/server"
@@ -44,10 +46,16 @@ func main() {
 	r := router.NewRouter(handler)
 
 	// Server start
+
 	server := server.New()
-	if err := server.Run(viper.GetString("SERVER_PORT"), r); err != nil {
-		logrus.Fatalf("error while running server %s", err.Error())
-	}
+	go func() {
+		if err := server.Run(viper.GetString("SERVER_PORT"), r); err != nil {
+			logrus.Fatalf("error while running server %s", err.Error())
+		}
+	}()
+	logrus.Print("Server started")
+
+	server.GracefulShutdown(context.Background())
 }
 
 func initConfig() error {
