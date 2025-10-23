@@ -32,13 +32,16 @@ func NewRouter(h *handler.Handler) chi.Router {
 			r.Put("/{id}", h.TodoList.UpdateList)
 			r.Delete("/{id}", h.TodoList.DeleteList)
 
-			r.Route("/items", func(r chi.Router) { // api/lists/items/...
+			r.Route("/{list_id}/items", func(r chi.Router) { // api/lists/items/...
 				r.Post("/", h.TodoItem.CreateItem)
+			})
+			r.Route("/items", func(r chi.Router) { // api/lists/items/...
 				r.Get("/", h.TodoItem.GetAllItems)
 				r.Get("/{item_id}", h.TodoItem.GetItemById)
 				r.Put("/{item_id}", h.TodoItem.UpdateItem)
 				r.Delete("/{item_id}", h.TodoItem.DeleteItem)
 			})
+
 		})
 	})
 
