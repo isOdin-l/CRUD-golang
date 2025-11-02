@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/google/uuid"
 	"github.com/isOdin/RestApi/internal/types/databaseTypes"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -17,32 +18,32 @@ func NewTodoListRepository(db *pgxpool.Pool) *TodoListRepository {
 	return &TodoListRepository{db: db}
 }
 
-func (r *TodoListRepository) CreateList(userId int, list databaseTypes.TodoList) (int, error) {
+func (r *TodoListRepository) CreateList(userId uuid.UUID, list databaseTypes.TodoList) (uuid.UUID, error) {
 	tx, err := r.db.Begin(context.Background())
 	if err != nil {
-		return -1, err
+		return uuid.Nil, err
 	}
 
-	var todoListid int
+	var todoListid uuid.UUID
 	createListQuery := fmt.Sprintf("INSERT INTO %s (title, description) VALUES ($1, $2) RETURNING id", databaseTypes.TableTodoLists)
 
 	rowCreateList := tx.QueryRow(context.Background(), createListQuery, list.Title, list.Description)
 	if err := rowCreateList.Scan(&todoListid); err != nil {
 		tx.Rollback(context.Background())
-		return -1, err
+		return uuid.Nil, err
 	}
 
 	createUserListRelationQuery := fmt.Sprintf("INSERT INTO %s (user_id, list_id) VALUES ($1, $2)", databaseTypes.TableUsersLists)
 	_, err = tx.Exec(context.Background(), createUserListRelationQuery, userId, todoListid)
 	if err != nil {
 		tx.Rollback(context.Background())
-		return -1, err
+		return uuid.Nil, err
 	}
 
 	return todoListid, tx.Commit(context.Background())
 }
 
-func (r *TodoListRepository) GetAllLists(userId int) (*[]databaseTypes.TodoList, error) {
+func (r *TodoListRepository) GetAllLists(userId uuid.UUID) (*[]databaseTypes.TodoList, error) {
 	var lists []databaseTypes.TodoList
 
 	getAllListsQuery := fmt.Sprintf("SELECT tl.id, tl.title, tl.description FROM %s tl INNER JOIN %s ul on tl.id = ul.list_id WHERE ul.user_id = $1", databaseTypes.TableTodoLists, databaseTypes.TableUsersLists)
@@ -56,7 +57,7 @@ func (r *TodoListRepository) GetAllLists(userId int) (*[]databaseTypes.TodoList,
 	return &lists, err
 }
 
-func (r *TodoListRepository) GetListById(userId, listId int) (*databaseTypes.TodoList, error) {
+func (r *TodoListRepository) GetListById(userId, listId uuid.UUID) (*databaseTypes.TodoList, error) {
 	var list databaseTypes.TodoList
 
 	getListByIdQuery := fmt.Sprintf("SELECT tl.id, tl.title, tl.description FROM %s tl INNER JOIN %s ul on tl.id = ul.list_id WHERE ul.user_id = $1 AND ul.list_id = $2", databaseTypes.TableTodoLists, databaseTypes.TableUsersLists)
@@ -65,7 +66,7 @@ func (r *TodoListRepository) GetListById(userId, listId int) (*databaseTypes.Tod
 	return &list, err
 }
 
-func (r *TodoListRepository) DeleteList(userId, listId int) error {
+func (r *TodoListRepository) DeleteList(userId, listId uuid.UUID) error {
 	queryDeleteList := fmt.Sprintf("DELETE FROM %s tl USING %s ul WHERE tl.id = ul.list_id AND ul.user_id=$1 AND ul.list_id=$2", databaseTypes.TableTodoLists, databaseTypes.TableUsersLists)
 	_, err := r.db.Exec(context.Background(), queryDeleteList, userId, listId)
 

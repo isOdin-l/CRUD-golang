@@ -1,8 +1,11 @@
 package authTokenTypes
 
-import "github.com/golang-jwt/jwt/v5"
+import (
+	"github.com/golang-jwt/jwt/v5"
+	"github.com/google/uuid"
+)
 
 type TokenClaims struct {
 	jwt.RegisteredClaims
-	UserId int `json:"user_id"`
+	UserId uuid.UUID `json:"user_id"`
 }

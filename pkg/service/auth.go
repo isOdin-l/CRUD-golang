@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/google/uuid"
 	"github.com/isOdin/RestApi/internal/types/authTokenTypes"
 	"github.com/isOdin/RestApi/internal/types/databaseTypes"
 	"github.com/isOdin/RestApi/pkg/repository"
@@ -24,7 +25,7 @@ func NewAuthService(repo repository.Authorization) *AuthService {
 	return &AuthService{repo: repo}
 }
 
-func (s *AuthService) CreateUser(user databaseTypes.User) (int, error) {
+func (s *AuthService) CreateUser(user databaseTypes.User) (uuid.UUID, error) {
 	user.Password = s.generatePasswordHash(user.Password)
 	return s.repo.CreateUser(user)
 }
@@ -35,7 +36,6 @@ func (s *AuthService) GenerateToken(username, password string) (string, error) {
 		return "", err
 	}
 
-	//nolint:govet
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, &authTokenTypes.TokenClaims{
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(tokenTTL)),

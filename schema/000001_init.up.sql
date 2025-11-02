@@ -1,36 +1,36 @@
 CREATE TABLE users
 (
-    id serial not null unique,
-    name varchar(255) not null,
-    username varchar(255) not null unique,
-    password_hash varchar(255) not null
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    name varchar(64) not null,
+    username varchar(64) not null unique,
+    password_hash TEXT not null
 );
 
 CREATE TABLE todo_lists
 (
-    id serial not null unique,
-    title varchar(255) not null,
-    description varchar(255)
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    title varchar(128) not null,
+    description TEXT
 );
 
 CREATE TABLE users_lists
 (
-    id serial not null unique,
-    user_id int references users(id) on delete cascade not null,
-    list_id int references todo_lists(id) on delete cascade not null
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID references users(id) on delete cascade not null,
+    list_id UUID references todo_lists(id) on delete cascade not null
 );
 
 CREATE TABLE todo_items
 (
-    id serial not null unique,
-    title varchar(255) not null,
-    description varchar(255),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    title varchar(128) not null,
+    description TEXT,
     done boolean not null default false
 );
 
 CREATE TABLE lists_items
 (
-    id serial not null unique,
-    item_id int references todo_items(id) on delete cascade not null,
-    list_id int references todo_lists(id) on delete cascade not null
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    item_id UUID references todo_items(id) on delete cascade not null,
+    list_id UUID references todo_lists(id) on delete cascade not null
 );

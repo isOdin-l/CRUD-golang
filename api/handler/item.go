@@ -3,10 +3,10 @@ package handler
 import (
 	"encoding/json"
 	"net/http"
-	"strconv"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/render"
+	"github.com/google/uuid"
 	"github.com/isOdin/RestApi/internal/types/databaseTypes"
 	"github.com/isOdin/RestApi/internal/types/reqTypes"
 	"github.com/isOdin/RestApi/pkg/service"
@@ -21,13 +21,13 @@ func NewItemHandler(service service.TodoItem) *Item {
 }
 
 func (h *Item) CreateItem(w http.ResponseWriter, r *http.Request) {
-	userId, ok := r.Context().Value("userId").(int)
+	userId, ok := r.Context().Value("userId").(uuid.UUID)
 	if !ok {
 		http.Error(w, "User id not found", http.StatusInternalServerError)
 		return
 	}
 
-	listId, err := strconv.Atoi(chi.URLParam(r, "list_id"))
+	listId, err := uuid.Parse(chi.URLParam(r, "list_id"))
 	if err != nil {
 		http.Error(w, "Invalid id param", http.StatusInternalServerError)
 		return
@@ -51,7 +51,7 @@ func (h *Item) CreateItem(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Item) GetAllItems(w http.ResponseWriter, r *http.Request) {
-	userId, ok := r.Context().Value("userId").(int)
+	userId, ok := r.Context().Value("userId").(uuid.UUID)
 	if !ok {
 		http.Error(w, "User id not found", http.StatusInternalServerError)
 		return
@@ -68,13 +68,13 @@ func (h *Item) GetAllItems(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Item) GetItemById(w http.ResponseWriter, r *http.Request) {
-	userId, ok := r.Context().Value("userId").(int)
+	userId, ok := r.Context().Value("userId").(uuid.UUID)
 	if !ok {
 		http.Error(w, "User id not found", http.StatusInternalServerError)
 		return
 	}
 
-	itemId, err := strconv.Atoi(chi.URLParam(r, "item_id"))
+	itemId, err := uuid.Parse(chi.URLParam(r, "item_id"))
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -92,13 +92,13 @@ func (h *Item) GetItemById(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Item) UpdateItem(w http.ResponseWriter, r *http.Request) {
-	userId, ok := r.Context().Value("userId").(int)
+	userId, ok := r.Context().Value("userId").(uuid.UUID)
 	if !ok {
 		http.Error(w, "User id not found", http.StatusInternalServerError)
 		return
 	}
 
-	itemId, err := strconv.Atoi(chi.URLParam(r, "item_id"))
+	itemId, err := uuid.Parse(chi.URLParam(r, "item_id"))
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -121,13 +121,13 @@ func (h *Item) UpdateItem(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Item) DeleteItem(w http.ResponseWriter, r *http.Request) {
-	userId, ok := r.Context().Value("userId").(int)
+	userId, ok := r.Context().Value("userId").(uuid.UUID)
 	if !ok {
 		http.Error(w, "User id not found", http.StatusInternalServerError)
 		return
 	}
 
-	itemId, err := strconv.Atoi(chi.URLParam(r, "item_id"))
+	itemId, err := uuid.Parse(chi.URLParam(r, "item_id"))
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

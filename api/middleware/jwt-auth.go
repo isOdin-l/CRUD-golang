@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/google/uuid"
 	"github.com/isOdin/RestApi/internal/types/authTokenTypes"
 	"github.com/spf13/viper"
 )
@@ -41,7 +42,7 @@ func JWTAuth(next http.Handler) http.Handler {
 	)
 }
 
-func parseJWTtoken(accessToken string) (int, error) {
+func parseJWTtoken(accessToken string) (uuid.UUID, error) {
 	token, err := jwt.ParseWithClaims(accessToken, &authTokenTypes.TokenClaims{}, func(token *jwt.Token) (any, error) {
 		if token.Method != jwt.SigningMethodHS256 {
 			return nil, jwt.ErrInvalidKeyType
@@ -51,11 +52,11 @@ func parseJWTtoken(accessToken string) (int, error) {
 	})
 
 	if err != nil {
-		return -1, err
+		return uuid.Nil, err
 	}
 	claims, ok := token.Claims.(*authTokenTypes.TokenClaims)
 	if !ok {
-		return -1, jwt.ErrTokenInvalidClaims
+		return uuid.Nil, jwt.ErrTokenInvalidClaims
 	}
 
 	return claims.UserId, nil

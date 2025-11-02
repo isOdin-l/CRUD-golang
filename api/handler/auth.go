@@ -20,7 +20,7 @@ func NewAuthHandler(service service.Authorization) *Auth {
 
 func (h *Auth) SignUpHandler(w http.ResponseWriter, r *http.Request) {
 	var reqUser databaseTypes.User
-	if err := json.NewDecoder(r.Body).Decode(&reqUser); err != nil { // TODO: переделать с render
+	if err := json.NewDecoder(r.Body).Decode(&reqUser); err != nil {
 		logrus.Errorf(err.Error())
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -29,7 +29,7 @@ func (h *Auth) SignUpHandler(w http.ResponseWriter, r *http.Request) {
 	id, err := h.service.CreateUser(reqUser)
 	if err != nil {
 		logrus.Errorf(err.Error())
-		http.Error(w, err.Error(), http.StatusInternalServerError) // TODO: cубрать дублирование кода
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
@@ -40,7 +40,7 @@ func (h *Auth) SignUpHandler(w http.ResponseWriter, r *http.Request) {
 
 func (h *Auth) SignInHandler(w http.ResponseWriter, r *http.Request) {
 	var reqUser databaseTypes.User
-	if err := json.NewDecoder(r.Body).Decode(&reqUser); err != nil { // TODO: переделать с render
+	if err := json.NewDecoder(r.Body).Decode(&reqUser); err != nil {
 		logrus.Errorf(err.Error())
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -49,7 +49,7 @@ func (h *Auth) SignInHandler(w http.ResponseWriter, r *http.Request) {
 	token, err := h.service.GenerateToken(reqUser.Username, reqUser.Password)
 	if err != nil {
 		logrus.Errorf(err.Error())
-		http.Error(w, err.Error(), http.StatusInternalServerError) // TODO: cубрать дублирование кода
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 

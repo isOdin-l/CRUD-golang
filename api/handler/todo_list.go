@@ -3,10 +3,10 @@ package handler
 import (
 	"encoding/json"
 	"net/http"
-	"strconv"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/render"
+	"github.com/google/uuid"
 	"github.com/isOdin/RestApi/internal/types/databaseTypes"
 	"github.com/isOdin/RestApi/internal/types/reqTypes"
 	"github.com/isOdin/RestApi/pkg/service"
@@ -21,7 +21,7 @@ func NewListHandler(service service.TodoList) *List {
 }
 
 func (h *List) CreateList(w http.ResponseWriter, r *http.Request) {
-	userId, ok := r.Context().Value("userId").(int)
+	userId, ok := r.Context().Value("userId").(uuid.UUID)
 	if !ok {
 		http.Error(w, "User id not found", http.StatusInternalServerError)
 		return
@@ -45,7 +45,7 @@ func (h *List) CreateList(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *List) GetAllLists(w http.ResponseWriter, r *http.Request) {
-	userId, ok := r.Context().Value("userId").(int)
+	userId, ok := r.Context().Value("userId").(uuid.UUID)
 	if !ok {
 		http.Error(w, "User id not found", http.StatusInternalServerError)
 		return
@@ -62,13 +62,13 @@ func (h *List) GetAllLists(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *List) GetListById(w http.ResponseWriter, r *http.Request) {
-	userId, ok := r.Context().Value("userId").(int)
+	userId, ok := r.Context().Value("userId").(uuid.UUID)
 	if !ok {
 		http.Error(w, "User id not found", http.StatusInternalServerError)
 		return
 	}
 
-	listId, err := strconv.Atoi(chi.URLParam(r, "id"))
+	listId, err := uuid.Parse(chi.URLParam(r, "id"))
 	if err != nil {
 		http.Error(w, "Invalid id param", http.StatusInternalServerError)
 		return
@@ -85,13 +85,13 @@ func (h *List) GetListById(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *List) UpdateList(w http.ResponseWriter, r *http.Request) {
-	userId, ok := r.Context().Value("userId").(int)
+	userId, ok := r.Context().Value("userId").(uuid.UUID)
 	if !ok {
 		http.Error(w, "User id not found", http.StatusInternalServerError)
 		return
 	}
 
-	listId, err := strconv.Atoi(chi.URLParam(r, "id"))
+	listId, err := uuid.Parse(chi.URLParam(r, "id"))
 	if err != nil {
 		http.Error(w, "Invalid id param", http.StatusInternalServerError)
 		return
@@ -112,13 +112,13 @@ func (h *List) UpdateList(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *List) DeleteList(w http.ResponseWriter, r *http.Request) {
-	userId, ok := r.Context().Value("userId").(int)
+	userId, ok := r.Context().Value("userId").(uuid.UUID)
 	if !ok {
 		http.Error(w, "User id not found", http.StatusInternalServerError)
 		return
 	}
 
-	listId, err := strconv.Atoi(chi.URLParam(r, "id"))
+	listId, err := uuid.Parse(chi.URLParam(r, "id"))
 	if err != nil {
 		http.Error(w, "Invalid id param", http.StatusInternalServerError)
 		return

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/google/uuid"
 	"github.com/isOdin/RestApi/internal/types/databaseTypes"
 	"github.com/isOdin/RestApi/internal/types/reqTypes"
 	"github.com/isOdin/RestApi/pkg/repository"
@@ -18,23 +19,23 @@ func NewTodoListService(repo repository.TodoList) *TodoListService {
 	return &TodoListService{repo: repo}
 }
 
-func (s *TodoListService) CreateList(userId int, list databaseTypes.TodoList) (int, error) {
+func (s *TodoListService) CreateList(userId uuid.UUID, list databaseTypes.TodoList) (uuid.UUID, error) {
 	return s.repo.CreateList(userId, list)
 }
 
-func (s *TodoListService) GetAllLists(userId int) (*[]databaseTypes.TodoList, error) {
+func (s *TodoListService) GetAllLists(userId uuid.UUID) (*[]databaseTypes.TodoList, error) {
 	return s.repo.GetAllLists(userId)
 }
 
-func (s *TodoListService) GetListById(userId, listId int) (*databaseTypes.TodoList, error) {
+func (s *TodoListService) GetListById(userId, listId uuid.UUID) (*databaseTypes.TodoList, error) {
 	return s.repo.GetListById(userId, listId)
 }
 
-func (s *TodoListService) DeleteList(userId, listId int) error {
+func (s *TodoListService) DeleteList(userId, listId uuid.UUID) error {
 	return s.repo.DeleteList(userId, listId)
 }
 
-func (s *TodoListService) UpdateList(userId, listId int, updList reqTypes.UpdateList) error {
+func (s *TodoListService) UpdateList(userId, listId uuid.UUID, updList reqTypes.UpdateList) error {
 	setValues := make([]string, 0)
 	setArgs := make([]interface{}, 0)
 	argId := 1

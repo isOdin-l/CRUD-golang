@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/google/uuid"
 	"github.com/isOdin/RestApi/internal/types/databaseTypes"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -17,19 +18,19 @@ func NewTodoItemRepository(db *pgxpool.Pool) *TodoItemRepository {
 	return &TodoItemRepository{db: db}
 }
 
-func (r *TodoItemRepository) CreateItem(listId int, item databaseTypes.TodoItem) (int, error) {
+func (r *TodoItemRepository) CreateItem(listId uuid.UUID, item databaseTypes.TodoItem) (uuid.UUID, error) {
 	tx, errTx := r.db.Begin(context.Background())
 	if errTx != nil {
-		return -1, errTx
+		return uuid.Nil, errTx
 	}
 
 	// T1 -> craete item
-	var itemId int
+	var itemId uuid.UUID
 	queryCreateItem := fmt.Sprintf("INSERT INTO %s (title, description) values ($1, $2) RETURNING id", databaseTypes.TableTodoItems)
 	errCreateItem := tx.QueryRow(context.Background(), queryCreateItem, item.Title, item.Description).Scan(&itemId)
 	if errCreateItem != nil {
 		tx.Rollback(context.Background())
-		return -1, errCreateItem
+		return uuid.Nil, errCreateItem
 	}
 
 	// T2 -> create item-list relation
@@ -37,13 +38,13 @@ func (r *TodoItemRepository) CreateItem(listId int, item databaseTypes.TodoItem)
 	_, errCreateRelation := tx.Exec(context.Background(), queryCreateListItemRelation, listId, itemId)
 	if errCreateRelation != nil {
 		tx.Rollback(context.Background())
-		return -1, errCreateRelation
+		return uuid.Nil, errCreateRelation
 	}
 
 	return itemId, tx.Commit(context.Background())
 }
 
-func (r *TodoItemRepository) GetAllItems(userId int) (*[]databaseTypes.TodoItem, error) {
+func (r *TodoItemRepository) GetAllItems(userId uuid.UUID) (*[]databaseTypes.TodoItem, error) {
 	var items []databaseTypes.TodoItem
 	queryGetAllItems := fmt.Sprintf("SELECT i.* FROM %s i INNER JOIN %s il ON i.id = il.item_id INNER JOIN %s l ON il.list_id = l.id INNER JOIN %s ul ON l.id = ul.list_id WHERE ul.user_id=$1",
 		databaseTypes.TableTodoItems, databaseTypes.TableListsItems, databaseTypes.TableTodoLists, databaseTypes.TableUsersLists)
@@ -57,7 +58,7 @@ func (r *TodoItemRepository) GetAllItems(userId int) (*[]databaseTypes.TodoItem,
 
 	return &items, err
 }
-func (r *TodoItemRepository) GetItemById(userId, itemId int) (*databaseTypes.TodoItem, error) {
+func (r *TodoItemRepository) GetItemById(userId, itemId uuid.UUID) (*databaseTypes.TodoItem, error) {
 	var itemById databaseTypes.TodoItem
 
 	queryGetItemById := fmt.Sprintf("SELECT i.id, i.title, i.description, i.done FROM %s i INNER JOIN %s il ON i.id = il.item_id INNER JOIN %s l ON il.list_id = l.id INNER JOIN %s ul ON l.id = ul.list_id WHERE ul.user_id=$1 AND i.id = $2",
@@ -67,7 +68,7 @@ func (r *TodoItemRepository) GetItemById(userId, itemId int) (*databaseTypes.Tod
 
 	return &itemById, err
 }
-func (r *TodoItemRepository) DeleteItem(userId, itemId int) error {
+func (r *TodoItemRepository) DeleteItem(userId, itemId uuid.UUID) error {
 	queryDeleteItemById := fmt.Sprintf(`
 		DELETE FROM %s i 
 		USING %s il 
