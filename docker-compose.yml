@@ -1,7 +1,7 @@
 services:
   postgresDB:
     image: postgres:latest
-    container_name: postgresql-restapi
+    container_name: postgresql
     env_file:
       - ./configs/db.env
     ports:
@@ -17,6 +17,7 @@ services:
   app:
     build: .
     image: rest-api-server:latest
+    container_name: server
     env_file:
       - ./configs/.env
     ports:

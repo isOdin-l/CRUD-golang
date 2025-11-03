@@ -9,17 +9,16 @@ import (
 	"github.com/isOdin/RestApi/internal/storage/postgresql"
 	"github.com/isOdin/RestApi/pkg/repository"
 	"github.com/isOdin/RestApi/pkg/service"
-	"github.com/joho/godotenv"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 )
 
-func main() {
+func init() {
 	logrus.SetFormatter(new(logrus.JSONFormatter))
-	if err := initConfig(); err != nil {
-		logrus.Fatalf("error initializing configs: %s", err.Error())
-	}
+	viper.AutomaticEnv()
+}
 
+func main() {
 	// Database: postgresql
 	DB, err := postgresql.NewPostgresDB(&postgresql.Config{
 		Host:     viper.GetString("DB_HOST"),
@@ -46,7 +45,6 @@ func main() {
 	r := router.NewRouter(handler)
 
 	// Server start
-
 	server := server.New()
 	go func() {
 		if err := server.Run(viper.GetString("SERVER_PORT"), r); err != nil {
@@ -56,14 +54,4 @@ func main() {
 	logrus.Print("Server started")
 
 	server.GracefulShutdown(context.Background())
-}
-
-func initConfig() error {
-	if err := godotenv.Load("./configs/.env"); err != nil {
-		return err
-	}
-
-	viper.AutomaticEnv()
-
-	return nil
 }

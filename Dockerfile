@@ -1,4 +1,4 @@
-FROM golang:1.24-alpine
+FROM golang:1.24
 
 WORKDIR /
 
@@ -9,6 +9,13 @@ RUN go mod download
 
 COPY . .
 
-RUN go build -o ./rest-api-server ./cmd/app/
+# --- For building static binary file (image size approximatly 35MB) ---
+# RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -ldflags '-extldflags "-static"' -o /rest-api-server ./cmd/app/main.go
+# FROM scratch
 
-CMD ["./rest-api-server"]
+RUN go build -o /rest-api-server ./cmd/app/main.go
+
+FROM ubuntu
+COPY --from=0 /rest-api-server /bin/rest-api-server
+
+CMD ["/bin/rest-api-server"]
