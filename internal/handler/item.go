@@ -28,6 +28,11 @@ func (h *Item) CreateItem(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+	if err := h.validate.Struct(reqItem); err != nil {
+		logrus.Error(err.Error())
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
 	itemId, err := h.service.CreateItem(reqItem.ToServiceModel())
 	if err != nil {
@@ -65,6 +70,11 @@ func (h *Item) GetItemById(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+	if err := h.validate.Struct(itemInfo); err != nil {
+		logrus.Error(err.Error())
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
 	item, err := h.service.GetItemById(itemInfo.ToServiceModel())
 	if err != nil {
@@ -83,6 +93,11 @@ func (h *Item) UpdateItem(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+	if err := h.validate.Struct(updItem); err != nil {
+		logrus.Error(err.Error())
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
 	if err := h.service.UpdateItem(updItem.ToServiceModel()); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -95,6 +110,11 @@ func (h *Item) UpdateItem(w http.ResponseWriter, r *http.Request) {
 func (h *Item) DeleteItem(w http.ResponseWriter, r *http.Request) {
 	var itemInfo requestDTO.DeleteItem
 	if err := chiBinding.DefaultBind(r, &itemInfo); err != nil {
+		logrus.Error(err.Error())
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	if err := h.validate.Struct(itemInfo); err != nil {
 		logrus.Error(err.Error())
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

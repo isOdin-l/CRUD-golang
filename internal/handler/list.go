@@ -29,6 +29,11 @@ func (h *List) CreateList(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
+	if err := h.validate.Struct(reqList); err != nil {
+		logrus.Error(err.Error())
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
 	listId, err := h.service.CreateList(reqList.ToServiceModel())
 	if err != nil {
@@ -72,6 +77,11 @@ func (h *List) GetListById(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+	if err := h.validate.Struct(listInfo); err != nil {
+		logrus.Error(err.Error())
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
 	list, err := h.service.GetListById(listInfo.ToServiceModel())
 	if err != nil {
@@ -90,8 +100,12 @@ func (h *List) UpdateList(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
+	if err := h.validate.Struct(reqUpdList); err != nil {
+		logrus.Error(err.Error())
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
-	// Вызываем функцию сервиса и переводим структуру хэндлера к структуре сервиса
 	if err := h.service.UpdateList(reqUpdList.ToServiceModel()); err != nil {
 		logrus.Error(err.Error())
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -103,6 +117,11 @@ func (h *List) UpdateList(w http.ResponseWriter, r *http.Request) {
 func (h *List) DeleteList(w http.ResponseWriter, r *http.Request) {
 	var listInfo requestDTO.DeleteList
 	if err := chiBinding.DefaultBind(r, &listInfo); err != nil {
+		logrus.Error(err.Error())
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	if err := h.validate.Struct(listInfo); err != nil {
 		logrus.Error(err.Error())
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
