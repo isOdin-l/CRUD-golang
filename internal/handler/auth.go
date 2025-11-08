@@ -4,16 +4,18 @@ import (
 	"net/http"
 
 	"github.com/go-chi/render"
+	"github.com/go-playground/validator/v10"
 	"github.com/isOdin/RestApi/internal/handler/requestDTO"
 	"github.com/isOdin/RestApi/internal/service"
 )
 
 type Auth struct {
-	service service.Authorization
+	validate *validator.Validate
+	service  service.Authorization
 }
 
-func NewAuthHandler(service service.Authorization) *Auth {
-	return &Auth{service: service}
+func NewAuthHandler(validate *validator.Validate, service service.Authorization) *Auth {
+	return &Auth{validate: validate, service: service}
 }
 
 func (h *Auth) SignUpHandler(w http.ResponseWriter, r *http.Request) {

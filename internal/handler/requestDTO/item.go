@@ -6,30 +6,34 @@ import (
 )
 
 type CreateItem struct {
-	Title       string `json:"title" binding:"required"`
-	Description string `json:"description"`
+	UserId      uuid.UUID `json:"user_id" form:"userId" validate:"required"`
+	ListId      uuid.UUID `json:"list_id" form:"list_id"`
+	Title       string    `json:"title" form:"title" validate:"required"`
+	Description string    `json:"description" form:"description"`
 }
 
 type GetItemById struct {
-	UserId uuid.UUID
-	ItemId uuid.UUID
+	UserId uuid.UUID `json:"user_id" form:"userId" validate:"required"`
+	ItemId uuid.UUID `json:"item_id" form:"item_id"`
 }
 
 type DeleteItem struct {
-	UserId uuid.UUID
-	ItemId uuid.UUID
+	UserId uuid.UUID `json:"user_id" form:"userId" validate:"required"`
+	ItemId uuid.UUID `json:"item_id" form:"item_id"`
 }
 
 type UpdateItem struct {
-	Title       string `json:"title"`
-	Description string `json:"description"`
-	Done        *bool  `json:"done"`
+	UserId      uuid.UUID `json:"user_id" form:"userId" validate:"required"`
+	ItemId      uuid.UUID `json:"item_id" form:"item_id"`
+	Title       string    `json:"title" form:"titel"`
+	Description string    `json:"description" form:"description"`
+	Done        *bool     `json:"done" form:"done"`
 }
 
-func (m *CreateItem) ToServiceModel(userId, listId uuid.UUID) *requestDTO.CreateItem {
+func (m *CreateItem) ToServiceModel() *requestDTO.CreateItem {
 	return &requestDTO.CreateItem{
-		UserId:      userId,
-		ListId:      listId,
+		UserId:      m.UserId,
+		ListId:      m.ListId,
 		Title:       m.Title,
 		Description: m.Description,
 	}
@@ -49,10 +53,10 @@ func (m *DeleteItem) ToServiceModel() *requestDTO.DeleteItem {
 	}
 }
 
-func (m *UpdateItem) ToServiceModel(userId, itemId uuid.UUID) *requestDTO.UpdateItem {
+func (m *UpdateItem) ToServiceModel() *requestDTO.UpdateItem {
 	return &requestDTO.UpdateItem{
-		UserId:      userId,
-		ItemId:      itemId,
+		UserId:      m.UserId,
+		ItemId:      m.ItemId,
 		Title:       m.Title,
 		Description: m.Description,
 		Done:        m.Done,

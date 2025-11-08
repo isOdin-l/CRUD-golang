@@ -6,28 +6,31 @@ import (
 )
 
 type CreateList struct {
-	Title       string `json:"title" binding:"required"`
-	Description string `json:"description"`
+	UserId      uuid.UUID `json:"user_id" form:"userId" validate:"required"`
+	Title       string    `json:"title" form:"title" validate:"required"`
+	Description string    `json:"description" form:"description"`
 }
 
 type GetListById struct {
-	UserId uuid.UUID
-	ListId uuid.UUID
+	UserId uuid.UUID `json:"user_id" form:"userId" validate:"required"`
+	ListId uuid.UUID `json:"list_id" form:"list_id"`
 }
 
 type DeleteList struct {
-	UserId uuid.UUID
-	ListId uuid.UUID
+	UserId uuid.UUID `json:"user_id" form:"userId" validate:"required"`
+	ListId uuid.UUID `json:"list_id" form:"list_id"`
 }
 
 type UpdateList struct {
-	Title       string `json:"title"`
-	Description string `json:"description"`
+	UserId      uuid.UUID `json:"user_id" form:"userId" validate:"required"`
+	ListId      uuid.UUID `json:"list_id" form:"list_id"`
+	Title       string    `json:"title" form:"title"`
+	Description string    `json:"description" form:"title"`
 }
 
-func (m *CreateList) ToServiceModel(userId uuid.UUID) *requestDTO.CreateList {
+func (m *CreateList) ToServiceModel() *requestDTO.CreateList {
 	return &requestDTO.CreateList{
-		UserId:      userId,
+		UserId:      m.UserId,
 		Title:       m.Title,
 		Description: m.Description,
 	}
@@ -47,10 +50,10 @@ func (m *DeleteList) ToServiceModel() *requestDTO.DeleteList {
 	}
 }
 
-func (m *UpdateList) ToServiceModel(userId, listId uuid.UUID) *requestDTO.UpdateList {
+func (m *UpdateList) ToServiceModel() *requestDTO.UpdateList {
 	return &requestDTO.UpdateList{
-		UserId:      userId,
-		ListId:      listId,
+		UserId:      m.UserId,
+		ListId:      m.ListId,
 		Title:       m.Title,
 		Description: m.Description,
 	}

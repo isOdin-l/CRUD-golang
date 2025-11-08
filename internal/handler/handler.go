@@ -3,6 +3,7 @@ package handler
 import (
 	"net/http"
 
+	"github.com/go-playground/validator/v10"
 	"github.com/isOdin/RestApi/internal/service"
 )
 
@@ -33,10 +34,10 @@ type Handler struct {
 	TodoList
 }
 
-func NewHandler(service *service.Service) *Handler {
+func NewHandler(validate *validator.Validate, service *service.Service) *Handler {
 	return &Handler{
-		Authorization: NewAuthHandler(service.Authorization),
-		TodoItem:      NewItemHandler(service.TodoItem),
-		TodoList:      NewListHandler(service.TodoList),
+		Authorization: NewAuthHandler(validate, service.Authorization),
+		TodoItem:      NewItemHandler(validate, service.TodoItem),
+		TodoList:      NewListHandler(validate, service.TodoList),
 	}
 }

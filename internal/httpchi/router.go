@@ -28,9 +28,9 @@ func NewRouter(md *mw.Middleware, h *handler.Handler) chi.Router {
 		r.Route("/lists", func(r chi.Router) { // api/lists/...
 			r.Post("/", h.TodoList.CreateList)
 			r.Get("/", h.TodoList.GetAllLists)
-			r.Get("/{id}", h.TodoList.GetListById)
-			r.Put("/{id}", h.TodoList.UpdateList)
-			r.Delete("/{id}", h.TodoList.DeleteList)
+			r.Get("/{list_id}", h.TodoList.GetListById)
+			r.Put("/{list_id}", h.TodoList.UpdateList)
+			r.Delete("/{list_id}", h.TodoList.DeleteList)
 
 			r.Route("/{list_id}/items", func(r chi.Router) { // api/lists/items/...
 				r.Post("/", h.TodoItem.CreateItem)

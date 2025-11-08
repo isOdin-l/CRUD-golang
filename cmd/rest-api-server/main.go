@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/caarlos0/env/v11"
+	"github.com/go-playground/validator/v10"
 	"github.com/isOdin/RestApi/configs"
 	"github.com/isOdin/RestApi/internal/database/postgresql"
 	"github.com/isOdin/RestApi/internal/handler"
@@ -41,19 +42,22 @@ func main() {
 	}
 	defer DB.Close()
 
-	// Repository
+	// ----- Repository -----
 	repository := repository.NewRepository(DB)
 
-	// Service
+	// ----- Service -----
 	service := service.NewService(internalCfg, repository)
 
-	// Middleware
+	// ----- Validator -----
+	validate := validator.New(validator.WithRequiredStructEnabled())
+
+	// ----- Middleware -----
 	middleware := middleware.NewMiddleware(internalCfg)
 
-	// Handler
-	handler := handler.NewHandler(service)
+	// ----- Handler -----
+	handler := handler.NewHandler(validate, service)
 
-	// Router
+	// ----- Router -----
 	r := httpchi.NewRouter(middleware, handler)
 
 	// Server start

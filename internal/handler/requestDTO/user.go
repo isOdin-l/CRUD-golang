@@ -3,14 +3,14 @@ package requestDTO
 import "github.com/isOdin/RestApi/internal/service/requestDTO"
 
 type SignUpUser struct {
-	Name     string `json:"name" binding:"required"`
-	Username string `json:"username" binding:"required"`
-	Password string `json:"password" binding:"required"`
+	Name     string `json:"name" form:"name" validate:"required"`
+	Username string `json:"username" form:"username" validate:"required"`
+	Password string `json:"password" form:"password" validate:"required"`
 }
 
 type SignInUser struct {
-	Username string `json:"username" binding:"required"`
-	Password string `json:"password" binding:"required"`
+	Username string `json:"username" form:"username" validate:"required"`
+	Password string `json:"password" form:"password" validate:"required"`
 }
 
 func (m *SignUpUser) ConvertToServiceModel() *requestDTO.CreateUser {
