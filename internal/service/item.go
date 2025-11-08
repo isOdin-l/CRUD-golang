@@ -35,7 +35,7 @@ func (s *TodoItemService) GetAllItems(userId uuid.UUID) (*[]responseDTO.GetItem,
 		return nil, err
 	}
 
-	items := make([]responseDTO.GetItem, 0)
+	items := make([]responseDTO.GetItem, len(*getedItem))
 	for i := range len(*getedItem) {
 		items[i] = *(*getedItem)[i].ToServiceModelGetItem()
 	}

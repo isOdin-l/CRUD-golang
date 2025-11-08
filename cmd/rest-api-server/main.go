@@ -4,28 +4,37 @@ import (
 	"context"
 	"net/http"
 
+	"github.com/caarlos0/env/v11"
+	"github.com/isOdin/RestApi/configs"
 	"github.com/isOdin/RestApi/internal/database/postgresql"
 	"github.com/isOdin/RestApi/internal/handler"
 	"github.com/isOdin/RestApi/internal/httpchi"
+	"github.com/isOdin/RestApi/internal/middleware"
 	"github.com/isOdin/RestApi/internal/repository"
 	"github.com/isOdin/RestApi/internal/service"
 	"github.com/sirupsen/logrus"
-	"github.com/spf13/viper"
 )
 
 func init() {
 	logrus.SetFormatter(new(logrus.JSONFormatter))
-	viper.AutomaticEnv()
 }
 
 func main() {
+	// Config
+	var cfg configs.Config
+	if err := env.Parse(&cfg); err != nil {
+		logrus.Error("Error whie initialize config:, ", err.Error())
+		return
+	}
+	internalCfg := &configs.InternalConfig{SALT: cfg.SALT, JWT_SIGNING_KEY: cfg.JWT_SIGNING_KEY}
+
 	// Database: postgresql
 	DB, err := postgresql.NewPostgresDB(&postgresql.Config{
-		Host:     viper.GetString("DB_HOST"),
-		Port:     viper.GetString("DB_PORT"),
-		Username: viper.GetString("DB_USERNAME"),
-		Password: viper.GetString("DB_PASSWORD"),
-		DBName:   viper.GetString("DB_NAME"),
+		Host:     cfg.DB_HOST,
+		Port:     cfg.DB_PORT,
+		Username: cfg.DB_USERNAME,
+		Password: cfg.DB_PASSWORD,
+		DBName:   cfg.DB_NAME,
 	})
 	if err != nil {
 		logrus.Fatalf("failed to initialize db: %s", err.Error())
@@ -36,18 +45,21 @@ func main() {
 	repository := repository.NewRepository(DB)
 
 	// Service
-	service := service.NewService(repository)
+	service := service.NewService(internalCfg, repository)
+
+	// Middleware
+	middleware := middleware.NewMiddleware(internalCfg)
 
 	// Handler
 	handler := handler.NewHandler(service)
 
 	// Router
-	r := httpchi.NewRouter(handler)
+	r := httpchi.NewRouter(middleware, handler)
 
 	// Server start
 	server := httpchi.NewServer()
 	go func() {
-		if err := server.RunServer(viper.GetString("SERVER_PORT"), r); err != nil && err != http.ErrServerClosed {
+		if err := server.RunServer(cfg.SERVER_PORT, r); err != nil && err != http.ErrServerClosed {
 			logrus.Fatalf("error while running server %s", err.Error())
 		}
 	}()

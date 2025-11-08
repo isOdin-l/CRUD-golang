@@ -7,20 +7,21 @@ import (
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
+	"github.com/isOdin/RestApi/configs"
 	jwtToken "github.com/isOdin/RestApi/internal/middleware/dto"
 	"github.com/isOdin/RestApi/internal/repository"
 	"github.com/isOdin/RestApi/internal/service/requestDTO"
-	"github.com/spf13/viper"
 )
 
 type AuthService struct {
 	repo repository.Authorization
+	cfg  *configs.InternalConfig
 }
 
 const tokenTTL = 12 * time.Hour
 
-func NewAuthService(repo repository.Authorization) *AuthService {
-	return &AuthService{repo: repo}
+func NewAuthService(cfg *configs.InternalConfig, repo repository.Authorization) *AuthService {
+	return &AuthService{cfg: cfg, repo: repo}
 }
 
 func (s *AuthService) CreateUser(user *requestDTO.CreateUser) (uuid.UUID, error) {
@@ -41,14 +42,12 @@ func (s *AuthService) GenerateToken(user *requestDTO.GenerateToken) (string, err
 		UserId: userFromDB.Id,
 	})
 
-	return token.SignedString([]byte(viper.GetString("JWT_SIGNING_KEY")))
+	return token.SignedString([]byte(s.cfg.JWT_SIGNING_KEY))
 }
 
 func (s *AuthService) generatePasswordHash(password string) string {
 	hash := sha1.New()
 	hash.Write([]byte(password))
 
-	salt := viper.GetString("SALT")
-
-	return fmt.Sprintf("%x", hash.Sum([]byte(salt)))
+	return fmt.Sprintf("%x", hash.Sum([]byte(s.cfg.SALT)))
 }

@@ -7,11 +7,19 @@ import (
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
+	"github.com/isOdin/RestApi/configs"
 	"github.com/isOdin/RestApi/internal/middleware/dto"
-	"github.com/spf13/viper"
 )
 
-func JWTAuth(next http.Handler) http.Handler {
+type AuthMiddleware struct {
+	cfg *configs.InternalConfig
+}
+
+func NewAuthMiddleware(cfg *configs.InternalConfig) *AuthMiddleware {
+	return &AuthMiddleware{cfg: cfg}
+}
+
+func (md *AuthMiddleware) JWTAuth(next http.Handler) http.Handler {
 	return http.HandlerFunc(
 		func(w http.ResponseWriter, r *http.Request) {
 			// Получаем токен из заголовка Authorization
@@ -29,7 +37,7 @@ func JWTAuth(next http.Handler) http.Handler {
 			}
 
 			// Парсим токен
-			userId, err := parseJWTtoken(tokenString)
+			userId, err := md.parseJWTtoken(tokenString)
 			if err != nil {
 				http.Error(w, err.Error(), http.StatusUnauthorized)
 				return
@@ -42,13 +50,13 @@ func JWTAuth(next http.Handler) http.Handler {
 	)
 }
 
-func parseJWTtoken(accessToken string) (uuid.UUID, error) {
+func (md *AuthMiddleware) parseJWTtoken(accessToken string) (uuid.UUID, error) {
 	token, err := jwt.ParseWithClaims(accessToken, &dto.TokenClaims{}, func(token *jwt.Token) (any, error) {
 		if token.Method != jwt.SigningMethodHS256 {
 			return nil, jwt.ErrInvalidKeyType
 		}
 
-		return []byte(viper.GetString("JWT_SIGNING_KEY")), nil
+		return []byte(md.cfg.JWT_SIGNING_KEY), nil
 	})
 
 	if err != nil {

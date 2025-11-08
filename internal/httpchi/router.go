@@ -7,7 +7,7 @@ import (
 	mw "github.com/isOdin/RestApi/internal/middleware"
 )
 
-func NewRouter(h *handler.Handler) chi.Router {
+func NewRouter(md *mw.Middleware, h *handler.Handler) chi.Router {
 	r := chi.NewRouter()
 
 	// Middlewares
@@ -24,7 +24,7 @@ func NewRouter(h *handler.Handler) chi.Router {
 
 	// api/...
 	r.Route("/api", func(r chi.Router) {
-		r.Use(mw.JWTAuth)
+		r.Use(md.JWTAuth)
 		r.Route("/lists", func(r chi.Router) { // api/lists/...
 			r.Post("/", h.TodoList.CreateList)
 			r.Get("/", h.TodoList.GetAllLists)

@@ -2,6 +2,7 @@ package service
 
 import (
 	"github.com/google/uuid"
+	"github.com/isOdin/RestApi/configs"
 	"github.com/isOdin/RestApi/internal/repository"
 	"github.com/isOdin/RestApi/internal/service/requestDTO"
 	"github.com/isOdin/RestApi/internal/service/responseDTO"
@@ -34,9 +35,9 @@ type Service struct {
 	TodoList
 }
 
-func NewService(repo *repository.Repository) *Service {
+func NewService(cfg *configs.InternalConfig, repo *repository.Repository) *Service {
 	return &Service{
-		Authorization: NewAuthService(repo.Authorization),
+		Authorization: NewAuthService(cfg, repo.Authorization),
 		TodoList:      NewTodoListService(repo.TodoList),
 		TodoItem:      NewTodoItemService(repo.TodoItem, repo.TodoList),
 	}
