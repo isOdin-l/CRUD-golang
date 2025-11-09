@@ -6,31 +6,42 @@ import (
 	"strings"
 
 	"github.com/google/uuid"
-	"github.com/isOdin/RestApi/internal/repository"
+	repoReqDTO "github.com/isOdin/RestApi/internal/repository/requestDTO"
+	repoResDTO "github.com/isOdin/RestApi/internal/repository/responseDTO"
 	"github.com/isOdin/RestApi/internal/service/requestDTO"
 	"github.com/isOdin/RestApi/internal/service/responseDTO"
 )
 
-type TodoItemService struct {
-	repoItem repository.TodoItem
-	repoList repository.TodoList
+type ItemRepoInterface interface {
+	CreateItem(itemInfo *repoReqDTO.CreateItem) (uuid.UUID, error)
+	GetAllItems(userId uuid.UUID) (*[]repoResDTO.GetItem, error)
+	GetItemById(itemInfo *repoReqDTO.GetItemById) (*repoResDTO.GetItemById, error)
+	DeleteItem(itemInfo *repoReqDTO.DeleteItem) error
+	UpdateItem(itemInfo *repoReqDTO.UpdateItem) error
+
+	// List function for work
+	GetListById(listInfo *repoReqDTO.GetListById) (*repoResDTO.GetListById, error)
 }
 
-func NewTodoItemService(repoItem repository.TodoItem, repoList repository.TodoList) *TodoItemService {
-	return &TodoItemService{repoItem: repoItem, repoList: repoList}
+type TodoItemService struct {
+	repo ItemRepoInterface
+}
+
+func NewTodoItemService(repo ItemRepoInterface) *TodoItemService {
+	return &TodoItemService{repo: repo}
 }
 
 func (s *TodoItemService) CreateItem(itemInfo *requestDTO.CreateItem) (uuid.UUID, error) {
-	_, err := s.repoList.GetListById(itemInfo.ToRepoModelGetListById())
+	_, err := s.repo.GetListById(itemInfo.ToRepoModelGetListById())
 	if err != nil {
 		return uuid.Nil, err
 	}
 
-	return s.repoItem.CreateItem(itemInfo.ToRepoModelCreateItem())
+	return s.repo.CreateItem(itemInfo.ToRepoModelCreateItem())
 }
 
 func (s *TodoItemService) GetAllItems(userId uuid.UUID) (*[]responseDTO.GetItem, error) {
-	getedItem, err := s.repoItem.GetAllItems(userId)
+	getedItem, err := s.repo.GetAllItems(userId)
 	if err != nil {
 		return nil, err
 	}
@@ -44,7 +55,7 @@ func (s *TodoItemService) GetAllItems(userId uuid.UUID) (*[]responseDTO.GetItem,
 
 }
 func (s *TodoItemService) GetItemById(itemInfo *requestDTO.GetItemById) (*responseDTO.GetItemById, error) {
-	item, err := s.repoItem.GetItemById(itemInfo.ToRepoModelGetItemById())
+	item, err := s.repo.GetItemById(itemInfo.ToRepoModelGetItemById())
 	if err != nil {
 		return nil, err
 	}
@@ -52,7 +63,7 @@ func (s *TodoItemService) GetItemById(itemInfo *requestDTO.GetItemById) (*respon
 }
 
 func (s *TodoItemService) DeleteItem(itemInfo *requestDTO.DeleteItem) error {
-	return s.repoItem.DeleteItem(itemInfo.ToRepoModelDeleteItem())
+	return s.repo.DeleteItem(itemInfo.ToRepoModelDeleteItem())
 }
 
 func (s *TodoItemService) UpdateItem(itemInfo *requestDTO.UpdateItem) error {
@@ -85,5 +96,5 @@ func (s *TodoItemService) UpdateItem(itemInfo *requestDTO.UpdateItem) error {
 	setValuesQuery := strings.Join(setValues, ", ")
 	setArgs = append(setArgs, itemInfo.ItemId, itemInfo.UserId)
 
-	return s.repoItem.UpdateItem(itemInfo.ToRepoModelUpdateItem(&setArgs, setValuesQuery, argId))
+	return s.repo.UpdateItem(itemInfo.ToRepoModelUpdateItem(&setArgs, setValuesQuery, argId))
 }

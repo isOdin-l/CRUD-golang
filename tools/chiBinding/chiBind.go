@@ -14,6 +14,10 @@ import (
 	"github.com/google/uuid"
 )
 
+type validator interface {
+	Struct(s interface{}) error
+}
+
 func DefaultBind[T any](r *http.Request, v *T) error {
 	// Создание декодера и создание правило преобразования uuid из string
 	decoder := form.NewDecoder()
@@ -61,4 +65,16 @@ func DefaultBind[T any](r *http.Request, v *T) error {
 	maps.Copy(UrlParams, contextValues) // UrlParams and contextValues in one map - in UrlParams
 
 	return decoder.Decode(v, UrlParams)
+}
+
+func BindValidate[T any](r *http.Request, v *T, validate validator) error {
+	if err := DefaultBind(r, v); err != nil {
+		return err
+	}
+
+	if err := validate.Struct(v); err != nil {
+		return err
+	}
+
+	return nil
 }

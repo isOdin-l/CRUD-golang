@@ -7,28 +7,32 @@ import (
 	"github.com/go-playground/validator/v10"
 	"github.com/google/uuid"
 	"github.com/isOdin/RestApi/internal/handler/requestDTO"
-	"github.com/isOdin/RestApi/internal/service"
+	serReqDTO "github.com/isOdin/RestApi/internal/service/requestDTO"
+	serResDTO "github.com/isOdin/RestApi/internal/service/responseDTO"
 	"github.com/isOdin/RestApi/tools/chiBinding"
 	"github.com/sirupsen/logrus"
 )
 
-type Item struct {
-	validate *validator.Validate
-	service  service.TodoItem
+type ItemServiceInterface interface {
+	CreateItem(itemInfo *serReqDTO.CreateItem) (uuid.UUID, error)
+	GetAllItems(userId uuid.UUID) (*[]serResDTO.GetItem, error)
+	GetItemById(itemInfo *serReqDTO.GetItemById) (*serResDTO.GetItemById, error)
+	DeleteItem(itemInfo *serReqDTO.DeleteItem) error
+	UpdateItem(itemInfo *serReqDTO.UpdateItem) error
 }
 
-func NewItemHandler(validate *validator.Validate, service service.TodoItem) *Item {
+type Item struct {
+	validate *validator.Validate
+	service  ItemServiceInterface
+}
+
+func NewItemHandler(validate *validator.Validate, service ItemServiceInterface) *Item {
 	return &Item{validate: validate, service: service}
 }
 
 func (h *Item) CreateItem(w http.ResponseWriter, r *http.Request) {
 	var reqItem requestDTO.CreateItem
-	if err := chiBinding.DefaultBind(r.Clone(r.Context()), &reqItem); err != nil {
-		logrus.Error(err.Error())
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	if err := h.validate.Struct(reqItem); err != nil {
+	if err := chiBinding.BindValidate(r, &reqItem, h.validate); err != nil {
 		logrus.Error(err.Error())
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -65,12 +69,7 @@ func (h *Item) GetAllItems(w http.ResponseWriter, r *http.Request) {
 
 func (h *Item) GetItemById(w http.ResponseWriter, r *http.Request) {
 	var itemInfo requestDTO.GetItemById
-	if err := chiBinding.DefaultBind(r, &itemInfo); err != nil {
-		logrus.Error(err.Error())
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	if err := h.validate.Struct(itemInfo); err != nil {
+	if err := chiBinding.BindValidate(r, &itemInfo, h.validate); err != nil {
 		logrus.Error(err.Error())
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -89,12 +88,7 @@ func (h *Item) GetItemById(w http.ResponseWriter, r *http.Request) {
 
 func (h *Item) UpdateItem(w http.ResponseWriter, r *http.Request) {
 	var updItem requestDTO.UpdateItem
-	if err := chiBinding.DefaultBind(r, &updItem); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	if err := h.validate.Struct(updItem); err != nil {
-		logrus.Error(err.Error())
+	if err := chiBinding.BindValidate(r, &updItem, h.validate); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -109,12 +103,7 @@ func (h *Item) UpdateItem(w http.ResponseWriter, r *http.Request) {
 
 func (h *Item) DeleteItem(w http.ResponseWriter, r *http.Request) {
 	var itemInfo requestDTO.DeleteItem
-	if err := chiBinding.DefaultBind(r, &itemInfo); err != nil {
-		logrus.Error(err.Error())
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	if err := h.validate.Struct(itemInfo); err != nil {
+	if err := chiBinding.BindValidate(r, &itemInfo, h.validate); err != nil {
 		logrus.Error(err.Error())
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

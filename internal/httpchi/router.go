@@ -1,13 +1,37 @@
 package httpchi
 
 import (
+	"net/http"
+
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
-	"github.com/isOdin/RestApi/internal/handler"
-	mw "github.com/isOdin/RestApi/internal/middleware"
 )
 
-func NewRouter(md *mw.Middleware, h *handler.Handler) chi.Router {
+type HandlerInterface interface {
+	// Auth
+	SignUpHandler(w http.ResponseWriter, r *http.Request)
+	SignInHandler(w http.ResponseWriter, r *http.Request)
+
+	// Item
+	CreateItem(w http.ResponseWriter, r *http.Request)
+	GetAllItems(w http.ResponseWriter, r *http.Request)
+	GetItemById(w http.ResponseWriter, r *http.Request)
+	UpdateItem(w http.ResponseWriter, r *http.Request)
+	DeleteItem(w http.ResponseWriter, r *http.Request)
+
+	// List
+	CreateList(w http.ResponseWriter, r *http.Request)
+	GetAllLists(w http.ResponseWriter, r *http.Request)
+	GetListById(w http.ResponseWriter, r *http.Request)
+	UpdateList(w http.ResponseWriter, r *http.Request)
+	DeleteList(w http.ResponseWriter, r *http.Request)
+}
+
+type MiddlewareInterface interface {
+	JWTAuth(next http.Handler) http.Handler
+}
+
+func NewRouter(md MiddlewareInterface, h HandlerInterface) chi.Router {
 	r := chi.NewRouter()
 
 	// Middlewares
@@ -18,28 +42,28 @@ func NewRouter(md *mw.Middleware, h *handler.Handler) chi.Router {
 
 	// /auth/...
 	r.Route("/auth", func(r chi.Router) {
-		r.Post("/sign-up", h.Authorization.SignUpHandler)
-		r.Post("/sign-in", h.Authorization.SignInHandler)
+		r.Post("/sign-up", h.SignUpHandler)
+		r.Post("/sign-in", h.SignInHandler)
 	})
 
 	// api/...
 	r.Route("/api", func(r chi.Router) {
 		r.Use(md.JWTAuth)
 		r.Route("/lists", func(r chi.Router) { // api/lists/...
-			r.Post("/", h.TodoList.CreateList)
-			r.Get("/", h.TodoList.GetAllLists)
-			r.Get("/{list_id}", h.TodoList.GetListById)
-			r.Put("/{list_id}", h.TodoList.UpdateList)
-			r.Delete("/{list_id}", h.TodoList.DeleteList)
+			r.Post("/", h.CreateList)
+			r.Get("/", h.GetAllLists)
+			r.Get("/{list_id}", h.GetListById)
+			r.Put("/{list_id}", h.UpdateList)
+			r.Delete("/{list_id}", h.DeleteList)
 
 			r.Route("/{list_id}/items", func(r chi.Router) { // api/lists/items/...
-				r.Post("/", h.TodoItem.CreateItem)
+				r.Post("/", h.CreateItem)
 			})
 			r.Route("/items", func(r chi.Router) { // api/lists/items/...
-				r.Get("/", h.TodoItem.GetAllItems)
-				r.Get("/{item_id}", h.TodoItem.GetItemById)
-				r.Put("/{item_id}", h.TodoItem.UpdateItem)
-				r.Delete("/{item_id}", h.TodoItem.DeleteItem)
+				r.Get("/", h.GetAllItems)
+				r.Get("/{item_id}", h.GetItemById)
+				r.Put("/{item_id}", h.UpdateItem)
+				r.Delete("/{item_id}", h.DeleteItem)
 			})
 
 		})

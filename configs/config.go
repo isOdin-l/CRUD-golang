@@ -1,5 +1,7 @@
 package configs
 
+import "time"
+
 type Config struct {
 	SERVER_PORT     string `env:"SERVER_PORT"`
 	DB_PASSWORD     string `env:"DB_PASSWORD"`
@@ -14,4 +16,5 @@ type Config struct {
 type InternalConfig struct {
 	SALT            string `env:"SALT"`
 	JWT_SIGNING_KEY string `env:"JWT_SIGNING_KEY"`
+	TOKEN_TTL       time.Duration
 }

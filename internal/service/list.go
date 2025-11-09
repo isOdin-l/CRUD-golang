@@ -6,16 +6,25 @@ import (
 	"strings"
 
 	"github.com/google/uuid"
-	"github.com/isOdin/RestApi/internal/repository"
+	repoReqDTO "github.com/isOdin/RestApi/internal/repository/requestDTO"
+	repoResDTO "github.com/isOdin/RestApi/internal/repository/responseDTO"
 	"github.com/isOdin/RestApi/internal/service/requestDTO"
 	"github.com/isOdin/RestApi/internal/service/responseDTO"
 )
 
-type TodoListService struct {
-	repo repository.TodoList
+type ListRepoInterface interface {
+	CreateList(listInfo *repoReqDTO.CreateList) (uuid.UUID, error)
+	GetAllLists(userId uuid.UUID) (*[]repoResDTO.GetList, error)
+	GetListById(listInfo *repoReqDTO.GetListById) (*repoResDTO.GetListById, error)
+	DeleteList(listInfo *repoReqDTO.DeleteList) error
+	UpdateList(listInfo *repoReqDTO.UpdateList) error
 }
 
-func NewTodoListService(repo repository.TodoList) *TodoListService {
+type TodoListService struct {
+	repo ListRepoInterface
+}
+
+func NewTodoListService(repo ListRepoInterface) *TodoListService {
 	return &TodoListService{repo: repo}
 }
 

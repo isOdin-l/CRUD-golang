@@ -8,30 +8,34 @@ import (
 	"github.com/google/uuid"
 	"github.com/isOdin/RestApi/internal/handler/requestDTO"
 	"github.com/isOdin/RestApi/internal/handler/responseDTO"
-	"github.com/isOdin/RestApi/internal/service"
+	reqSerDTO "github.com/isOdin/RestApi/internal/service/requestDTO"
+	resSerDTO "github.com/isOdin/RestApi/internal/service/responseDTO"
 	"github.com/isOdin/RestApi/tools/chiBinding"
 	"github.com/sirupsen/logrus"
 )
 
-type List struct {
-	validate *validator.Validate
-	service  service.TodoList
+type ListServiceInterface interface {
+	CreateList(listInfo *reqSerDTO.CreateList) (uuid.UUID, error)
+	GetAllLists(userId uuid.UUID) (*[]resSerDTO.GetList, error)
+	GetListById(listInfo *reqSerDTO.GetListById) (*resSerDTO.GetListById, error)
+	DeleteList(listInfo *reqSerDTO.DeleteList) error
+	UpdateList(listInfo *reqSerDTO.UpdateList) error
 }
 
-func NewListHandler(validate *validator.Validate, service service.TodoList) *List {
+type List struct {
+	validate *validator.Validate
+	service  ListServiceInterface
+}
+
+func NewListHandler(validate *validator.Validate, service ListServiceInterface) *List {
 	return &List{validate: validate, service: service}
 }
 
 func (h *List) CreateList(w http.ResponseWriter, r *http.Request) {
 	var reqList requestDTO.CreateList
-	if err := chiBinding.DefaultBind(r, &reqList); err != nil {
+	if err := chiBinding.BindValidate(r, &reqList, h.validate); err != nil {
 		logrus.Error(err.Error())
 		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-	if err := h.validate.Struct(reqList); err != nil {
-		logrus.Error(err.Error())
-		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
@@ -72,12 +76,7 @@ func (h *List) GetAllLists(w http.ResponseWriter, r *http.Request) {
 
 func (h *List) GetListById(w http.ResponseWriter, r *http.Request) {
 	var listInfo requestDTO.GetListById
-	if err := chiBinding.DefaultBind(r, &listInfo); err != nil {
-		logrus.Error(err.Error())
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	if err := h.validate.Struct(listInfo); err != nil {
+	if err := chiBinding.BindValidate(r, &listInfo, h.validate); err != nil {
 		logrus.Error(err.Error())
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -95,14 +94,9 @@ func (h *List) GetListById(w http.ResponseWriter, r *http.Request) {
 
 func (h *List) UpdateList(w http.ResponseWriter, r *http.Request) {
 	var reqUpdList requestDTO.UpdateList
-	if err := chiBinding.DefaultBind(r, &reqUpdList); err != nil {
+	if err := chiBinding.BindValidate(r, &reqUpdList, h.validate); err != nil {
 		logrus.Error(err.Error())
 		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-	if err := h.validate.Struct(reqUpdList); err != nil {
-		logrus.Error(err.Error())
-		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
@@ -116,12 +110,7 @@ func (h *List) UpdateList(w http.ResponseWriter, r *http.Request) {
 
 func (h *List) DeleteList(w http.ResponseWriter, r *http.Request) {
 	var listInfo requestDTO.DeleteList
-	if err := chiBinding.DefaultBind(r, &listInfo); err != nil {
-		logrus.Error(err.Error())
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	if err := h.validate.Struct(listInfo); err != nil {
+	if err := chiBinding.BindValidate(r, &listInfo, h.validate); err != nil {
 		logrus.Error(err.Error())
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

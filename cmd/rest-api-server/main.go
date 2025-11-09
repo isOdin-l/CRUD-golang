@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"net/http"
+	"time"
 
 	"github.com/caarlos0/env/v11"
 	"github.com/go-playground/validator/v10"
@@ -27,7 +28,11 @@ func main() {
 		logrus.Error("Error whie initialize config:, ", err.Error())
 		return
 	}
-	internalCfg := &configs.InternalConfig{SALT: cfg.SALT, JWT_SIGNING_KEY: cfg.JWT_SIGNING_KEY}
+	internalCfg := &configs.InternalConfig{
+		SALT:            cfg.SALT,
+		JWT_SIGNING_KEY: cfg.JWT_SIGNING_KEY,
+		TOKEN_TTL:       12 * time.Hour,
+	}
 
 	// Database: postgresql
 	DB, err := postgresql.NewPostgresDB(&postgresql.Config{

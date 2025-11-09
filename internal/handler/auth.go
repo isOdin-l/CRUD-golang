@@ -5,27 +5,30 @@ import (
 
 	"github.com/go-chi/render"
 	"github.com/go-playground/validator/v10"
+	"github.com/google/uuid"
 	"github.com/isOdin/RestApi/internal/handler/requestDTO"
-	"github.com/isOdin/RestApi/internal/service"
+	servReqDTO "github.com/isOdin/RestApi/internal/service/requestDTO"
+	"github.com/isOdin/RestApi/tools/chiBinding"
 	"github.com/sirupsen/logrus"
 )
 
-type Auth struct {
-	validate *validator.Validate
-	service  service.Authorization
+type AuthServiceInterface interface {
+	CreateUser(user *servReqDTO.CreateUser) (uuid.UUID, error)
+	GenerateToken(user *servReqDTO.GenerateToken) (string, error)
 }
 
-func NewAuthHandler(validate *validator.Validate, service service.Authorization) *Auth {
+type Auth struct {
+	validate *validator.Validate
+	service  AuthServiceInterface
+}
+
+func NewAuthHandler(validate *validator.Validate, service AuthServiceInterface) *Auth {
 	return &Auth{validate: validate, service: service}
 }
 
 func (h *Auth) SignUpHandler(w http.ResponseWriter, r *http.Request) {
 	var reqUser requestDTO.SignUpUser
-	if err := render.DecodeJSON(r.Body, &reqUser); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-	if err := h.validate.Struct(reqUser); err != nil {
+	if err := chiBinding.BindValidate(r, &reqUser, h.validate); err != nil {
 		logrus.Error(err.Error())
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -44,11 +47,7 @@ func (h *Auth) SignUpHandler(w http.ResponseWriter, r *http.Request) {
 
 func (h *Auth) SignInHandler(w http.ResponseWriter, r *http.Request) {
 	var reqUser requestDTO.SignInUser
-	if err := render.DecodeJSON(r.Body, &reqUser); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-	if err := h.validate.Struct(reqUser); err != nil {
+	if err := chiBinding.BindValidate(r, &reqUser, h.validate); err != nil {
 		logrus.Error(err.Error())
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

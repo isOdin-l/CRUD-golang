@@ -9,18 +9,22 @@ import (
 	"github.com/google/uuid"
 	"github.com/isOdin/RestApi/configs"
 	jwtToken "github.com/isOdin/RestApi/internal/middleware/dto"
-	"github.com/isOdin/RestApi/internal/repository"
+	repoReqDTO "github.com/isOdin/RestApi/internal/repository/requestDTO"
+	repoResDTO "github.com/isOdin/RestApi/internal/repository/responseDTO"
 	"github.com/isOdin/RestApi/internal/service/requestDTO"
 )
 
+type AuthRepoInterface interface {
+	CreateUser(user *repoReqDTO.CreateUser) (uuid.UUID, error)
+	GetUser(user *repoReqDTO.GetUser) (*repoResDTO.GetedUser, error)
+}
+
 type AuthService struct {
-	repo repository.Authorization
+	repo AuthRepoInterface
 	cfg  *configs.InternalConfig
 }
 
-const tokenTTL = 12 * time.Hour
-
-func NewAuthService(cfg *configs.InternalConfig, repo repository.Authorization) *AuthService {
+func NewAuthService(cfg *configs.InternalConfig, repo AuthRepoInterface) *AuthService {
 	return &AuthService{cfg: cfg, repo: repo}
 }
 
@@ -36,7 +40,7 @@ func (s *AuthService) GenerateToken(user *requestDTO.GenerateToken) (string, err
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, &jwtToken.TokenClaims{
 		RegisteredClaims: jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(tokenTTL)),
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(s.cfg.TOKEN_TTL)),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
 		},
 		UserId: userFromDB.Id,
