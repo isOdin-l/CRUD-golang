@@ -9,7 +9,7 @@ import (
 	"github.com/isOdin/RestApi/internal/handler/requestDTO"
 	serReqDTO "github.com/isOdin/RestApi/internal/service/requestDTO"
 	serResDTO "github.com/isOdin/RestApi/internal/service/responseDTO"
-	"github.com/isOdin/RestApi/tools/chiBinding"
+	"github.com/isOdin/RestApi/tools/bindchi"
 	"github.com/sirupsen/logrus"
 )
 
@@ -30,9 +30,20 @@ func NewItemHandler(validate *validator.Validate, service ItemServiceInterface) 
 	return &Item{validate: validate, service: service}
 }
 
+// @Summary Create todo-item
+// @Security ApiKeyAuth
+// @Tags items
+// @ID create-item
+// @Accept  json
+// @Produce  json
+// @Param list_id path string true "List Id"
+// @Param input body apidto.CreateItem true "Item info"
+// @Success 200 {string} string
+// @Failure default {string} string
+// @Router /api/lists/{list_id}/items [post]
 func (h *Item) CreateItem(w http.ResponseWriter, r *http.Request) {
 	var reqItem requestDTO.CreateItem
-	if err := chiBinding.BindValidate(r, &reqItem, h.validate); err != nil {
+	if err := bindchi.BindValidate(r, &reqItem, h.validate); err != nil {
 		logrus.Error(err.Error())
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -49,6 +60,15 @@ func (h *Item) CreateItem(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+// @Summary Get all todo-items
+// @Security ApiKeyAuth
+// @Tags items
+// @ID get-all-items
+// @Accept  json
+// @Produce  json
+// @Success 200 {string} string
+// @Failure default {string} string
+// @Router /api/lists/items [get]
 func (h *Item) GetAllItems(w http.ResponseWriter, r *http.Request) {
 	userId, ok := r.Context().Value("userId").(uuid.UUID)
 	if !ok {
@@ -67,9 +87,19 @@ func (h *Item) GetAllItems(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+// @Summary Get todo-item by Id
+// @Security ApiKeyAuth
+// @Tags items
+// @ID get-item-by-id
+// @Accept  json
+// @Produce  json
+// @Param item_id path string true "Item Id"
+// @Success 200 {string} string
+// @Failure default {string} string
+// @Router /api/lists/items/{item_id} [get]
 func (h *Item) GetItemById(w http.ResponseWriter, r *http.Request) {
 	var itemInfo requestDTO.GetItemById
-	if err := chiBinding.BindValidate(r, &itemInfo, h.validate); err != nil {
+	if err := bindchi.BindValidate(r, &itemInfo, h.validate); err != nil {
 		logrus.Error(err.Error())
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -86,9 +116,20 @@ func (h *Item) GetItemById(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+// @Summary Update todo-item
+// @Security ApiKeyAuth
+// @Tags items
+// @ID update-item
+// @Accept  json
+// @Produce  json
+// @Param item_id path string true "Item Id"
+// @Param input body apidto.UpdateItem true "Item info"
+// @Success 200 {string} string
+// @Failure default {string} string
+// @Router /api/lists/items/{item_id} [put]
 func (h *Item) UpdateItem(w http.ResponseWriter, r *http.Request) {
 	var updItem requestDTO.UpdateItem
-	if err := chiBinding.BindValidate(r, &updItem, h.validate); err != nil {
+	if err := bindchi.BindValidate(r, &updItem, h.validate); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -101,9 +142,19 @@ func (h *Item) UpdateItem(w http.ResponseWriter, r *http.Request) {
 	render.JSON(w, r, map[string]interface{}{})
 }
 
+// @Summary Delete todo-item
+// @Security ApiKeyAuth
+// @Tags items
+// @ID delete-item
+// @Accept  json
+// @Produce  json
+// @Param item_id path string true "Item Id"
+// @Success 200 {string} string
+// @Failure default {string} string
+// @Router /api/lists/items/{item_id} [delete]
 func (h *Item) DeleteItem(w http.ResponseWriter, r *http.Request) {
 	var itemInfo requestDTO.DeleteItem
-	if err := chiBinding.BindValidate(r, &itemInfo, h.validate); err != nil {
+	if err := bindchi.BindValidate(r, &itemInfo, h.validate); err != nil {
 		logrus.Error(err.Error())
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

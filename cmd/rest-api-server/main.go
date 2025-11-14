@@ -17,10 +17,18 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-func init() {
-	logrus.SetFormatter(new(logrus.JSONFormatter))
-}
+// @title Todo App API
+// @version 1.0
+// @description REST API Server
+// @tag.name auth
+// @tag.name lists
+// @tag.name items
+// @host localhost:8000
+// @BasePath /
 
+// @securityDefinitions.apikey ApiKeyAuth
+// @in header
+// @name Authorization
 func main() {
 	// Config
 	var cfg configs.Config
@@ -75,4 +83,8 @@ func main() {
 	logrus.Print("Server started")
 
 	server.GracefulShutdownServer(context.Background())
+}
+
+func init() {
+	logrus.SetFormatter(new(logrus.JSONFormatter))
 }

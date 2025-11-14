@@ -6,9 +6,10 @@ import (
 	"github.com/go-chi/render"
 	"github.com/go-playground/validator/v10"
 	"github.com/google/uuid"
+	_ "github.com/isOdin/RestApi/api/apidto"
 	"github.com/isOdin/RestApi/internal/handler/requestDTO"
 	servReqDTO "github.com/isOdin/RestApi/internal/service/requestDTO"
-	"github.com/isOdin/RestApi/tools/chiBinding"
+	"github.com/isOdin/RestApi/tools/bindchi"
 	"github.com/sirupsen/logrus"
 )
 
@@ -26,9 +27,18 @@ func NewAuthHandler(validate *validator.Validate, service AuthServiceInterface) 
 	return &Auth{validate: validate, service: service}
 }
 
+// @Summary SignUp
+// @Tags auth
+// @ID create-account
+// @Accept  json
+// @Produce  json
+// @Param input body apidto.SignUpAPI true "account info"
+// @Success 200 {string} string
+// @Failure default {string} string
+// @Router /auth/sign-up [post]
 func (h *Auth) SignUpHandler(w http.ResponseWriter, r *http.Request) {
 	var reqUser requestDTO.SignUpUser
-	if err := chiBinding.BindValidate(r, &reqUser, h.validate); err != nil {
+	if err := bindchi.BindValidate(r, &reqUser, h.validate); err != nil {
 		logrus.Error(err.Error())
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -45,9 +55,18 @@ func (h *Auth) SignUpHandler(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+// @Summary SignIn
+// @Tags auth
+// @ID log-into-account
+// @Accept  json
+// @Produce  json
+// @Param input body apidto.SignInAPI true "account info"
+// @Success 200 {string} string
+// @Failure default {string} string
+// @Router /auth/sign-in [post]
 func (h *Auth) SignInHandler(w http.ResponseWriter, r *http.Request) {
 	var reqUser requestDTO.SignInUser
-	if err := chiBinding.BindValidate(r, &reqUser, h.validate); err != nil {
+	if err := bindchi.BindValidate(r, &reqUser, h.validate); err != nil {
 		logrus.Error(err.Error())
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

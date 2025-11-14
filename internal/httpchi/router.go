@@ -5,6 +5,9 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+
+	_ "github.com/isOdin/RestApi/api/swagger"
+	httpSwagger "github.com/swaggo/http-swagger/v2"
 )
 
 type HandlerInterface interface {
@@ -40,6 +43,8 @@ func NewRouter(md MiddlewareInterface, h HandlerInterface) chi.Router {
 	r.Use(middleware.RealIP)
 	r.Use(middleware.Recoverer)
 
+	r.Get("/swagger/*", httpSwagger.Handler())
+
 	// /auth/...
 	r.Route("/auth", func(r chi.Router) {
 		r.Post("/sign-up", h.SignUpHandler)
@@ -59,7 +64,7 @@ func NewRouter(md MiddlewareInterface, h HandlerInterface) chi.Router {
 			r.Route("/{list_id}/items", func(r chi.Router) { // api/lists/items/...
 				r.Post("/", h.CreateItem)
 			})
-			r.Route("/items", func(r chi.Router) { // api/lists/items/...
+			r.Route("/items", func(r chi.Router) { // api/items/...
 				r.Get("/", h.GetAllItems)
 				r.Get("/{item_id}", h.GetItemById)
 				r.Put("/{item_id}", h.UpdateItem)

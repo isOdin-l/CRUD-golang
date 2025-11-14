@@ -6,11 +6,12 @@ import (
 	"github.com/go-chi/render"
 	"github.com/go-playground/validator/v10"
 	"github.com/google/uuid"
+	_ "github.com/isOdin/RestApi/api/apidto"
 	"github.com/isOdin/RestApi/internal/handler/requestDTO"
 	"github.com/isOdin/RestApi/internal/handler/responseDTO"
 	reqSerDTO "github.com/isOdin/RestApi/internal/service/requestDTO"
 	resSerDTO "github.com/isOdin/RestApi/internal/service/responseDTO"
-	"github.com/isOdin/RestApi/tools/chiBinding"
+	"github.com/isOdin/RestApi/tools/bindchi"
 	"github.com/sirupsen/logrus"
 )
 
@@ -31,9 +32,19 @@ func NewListHandler(validate *validator.Validate, service ListServiceInterface) 
 	return &List{validate: validate, service: service}
 }
 
+// @Summary Create todo-list
+// @Security ApiKeyAuth
+// @Tags lists
+// @ID create-list
+// @Accept  json
+// @Produce  json
+// @Param input body apidto.CreateList true "list info"
+// @Success 200 {string} string
+// @Failure default {string} string
+// @Router /api/lists [post]
 func (h *List) CreateList(w http.ResponseWriter, r *http.Request) {
 	var reqList requestDTO.CreateList
-	if err := chiBinding.BindValidate(r, &reqList, h.validate); err != nil {
+	if err := bindchi.BindValidate(r, &reqList, h.validate); err != nil {
 		logrus.Error(err.Error())
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -50,6 +61,15 @@ func (h *List) CreateList(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+// @Summary Get all todo-lists
+// @Security ApiKeyAuth
+// @Tags lists
+// @ID get-all-lists
+// @Accept  json
+// @Produce  json
+// @Success 200 {string} string
+// @Failure default {string} string
+// @Router /api/lists [get]
 func (h *List) GetAllLists(w http.ResponseWriter, r *http.Request) {
 	userId, ok := r.Context().Value("userId").(uuid.UUID)
 	if !ok {
@@ -74,9 +94,19 @@ func (h *List) GetAllLists(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+// @Summary Get todo-lists by Id
+// @Security ApiKeyAuth
+// @Tags lists
+// @ID get-list-by-id
+// @Accept  json
+// @Produce  json
+// @Param list_id path string true "List Id"
+// @Success 200 {string} string
+// @Failure default {string} string
+// @Router /api/lists/{list_id} [get]
 func (h *List) GetListById(w http.ResponseWriter, r *http.Request) {
 	var listInfo requestDTO.GetListById
-	if err := chiBinding.BindValidate(r, &listInfo, h.validate); err != nil {
+	if err := bindchi.BindValidate(r, &listInfo, h.validate); err != nil {
 		logrus.Error(err.Error())
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -92,9 +122,20 @@ func (h *List) GetListById(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+// @Summary Update todo-list
+// @Security ApiKeyAuth
+// @Tags lists
+// @ID update-list
+// @Accept  json
+// @Produce  json
+// @Param list_id path string true "List Id"
+// @Param input body apidto.UpdateList true "list info"
+// @Success 200 {string} string
+// @Failure default {string} string
+// @Router /api/lists/{list_id} [put]
 func (h *List) UpdateList(w http.ResponseWriter, r *http.Request) {
 	var reqUpdList requestDTO.UpdateList
-	if err := chiBinding.BindValidate(r, &reqUpdList, h.validate); err != nil {
+	if err := bindchi.BindValidate(r, &reqUpdList, h.validate); err != nil {
 		logrus.Error(err.Error())
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -108,9 +149,19 @@ func (h *List) UpdateList(w http.ResponseWriter, r *http.Request) {
 	render.JSON(w, r, map[string]interface{}{})
 }
 
+// @Summary Delete todo-list
+// @Security ApiKeyAuth
+// @Tags lists
+// @ID delete-list
+// @Accept  json
+// @Produce  json
+// @Param list_id path string true "List Id"
+// @Success 200 {string} string
+// @Failure default {string} string
+// @Router /api/lists/{list_id} [delete]
 func (h *List) DeleteList(w http.ResponseWriter, r *http.Request) {
 	var listInfo requestDTO.DeleteList
-	if err := chiBinding.BindValidate(r, &listInfo, h.validate); err != nil {
+	if err := bindchi.BindValidate(r, &listInfo, h.validate); err != nil {
 		logrus.Error(err.Error())
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

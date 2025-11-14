@@ -1,4 +1,4 @@
-package chiBinding
+package bindchi
 
 import (
 	"encoding/json"

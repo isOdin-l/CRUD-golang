@@ -1,0 +1,389 @@
+basePath: /
+definitions:
+  apidto.CreateItem:
+    properties:
+      description:
+        type: string
+      title:
+        type: string
+    type: object
+  apidto.CreateList:
+    properties:
+      description:
+        type: string
+      title:
+        type: string
+    type: object
+  apidto.SignInAPI:
+    properties:
+      password:
+        type: string
+      username:
+        type: string
+    type: object
+  apidto.SignUpAPI:
+    properties:
+      name:
+        type: string
+      password:
+        type: string
+      username:
+        type: string
+    type: object
+  apidto.UpdateItem:
+    properties:
+      description:
+        type: string
+      done:
+        type: boolean
+      title:
+        type: string
+    type: object
+  apidto.UpdateList:
+    properties:
+      description:
+        type: string
+      title:
+        type: string
+    type: object
+host: localhost:8000
+info:
+  contact: {}
+  description: REST API Server
+  title: Todo App API
+  version: "1.0"
+paths:
+  /api/lists:
+    get:
+      consumes:
+      - application/json
+      operationId: get-all-lists
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        default:
+          description: ""
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: Get all todo-lists
+      tags:
+      - lists
+    post:
+      consumes:
+      - application/json
+      operationId: create-list
+      parameters:
+      - description: list info
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/apidto.CreateList'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        default:
+          description: ""
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: Create todo-list
+      tags:
+      - lists
+  /api/lists/{list_id}:
+    delete:
+      consumes:
+      - application/json
+      operationId: delete-list
+      parameters:
+      - description: List Id
+        in: path
+        name: list_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        default:
+          description: ""
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: Delete todo-list
+      tags:
+      - lists
+    get:
+      consumes:
+      - application/json
+      operationId: get-list-by-id
+      parameters:
+      - description: List Id
+        in: path
+        name: list_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        default:
+          description: ""
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: Get todo-lists by Id
+      tags:
+      - lists
+    put:
+      consumes:
+      - application/json
+      operationId: update-list
+      parameters:
+      - description: List Id
+        in: path
+        name: list_id
+        required: true
+        type: string
+      - description: list info
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/apidto.UpdateList'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        default:
+          description: ""
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: Update todo-list
+      tags:
+      - lists
+  /api/lists/{list_id}/items:
+    post:
+      consumes:
+      - application/json
+      operationId: create-item
+      parameters:
+      - description: List Id
+        in: path
+        name: list_id
+        required: true
+        type: string
+      - description: Item info
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/apidto.CreateItem'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        default:
+          description: ""
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: Create todo-item
+      tags:
+      - items
+  /api/lists/items:
+    get:
+      consumes:
+      - application/json
+      operationId: get-all-items
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        default:
+          description: ""
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: Get all todo-items
+      tags:
+      - items
+  /api/lists/items/{item_id}:
+    delete:
+      consumes:
+      - application/json
+      operationId: delete-item
+      parameters:
+      - description: Item Id
+        in: path
+        name: item_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        default:
+          description: ""
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: Delete todo-item
+      tags:
+      - items
+    get:
+      consumes:
+      - application/json
+      operationId: get-item-by-id
+      parameters:
+      - description: Item Id
+        in: path
+        name: item_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        default:
+          description: ""
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: Get todo-item by Id
+      tags:
+      - items
+    put:
+      consumes:
+      - application/json
+      operationId: update-item
+      parameters:
+      - description: Item Id
+        in: path
+        name: item_id
+        required: true
+        type: string
+      - description: Item info
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/apidto.UpdateItem'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        default:
+          description: ""
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: Update todo-item
+      tags:
+      - items
+  /auth/sign-in:
+    post:
+      consumes:
+      - application/json
+      operationId: log-into-account
+      parameters:
+      - description: account info
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/apidto.SignInAPI'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        default:
+          description: ""
+          schema:
+            type: string
+      summary: SignIn
+      tags:
+      - auth
+  /auth/sign-up:
+    post:
+      consumes:
+      - application/json
+      operationId: create-account
+      parameters:
+      - description: account info
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/apidto.SignUpAPI'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        default:
+          description: ""
+          schema:
+            type: string
+      summary: SignUp
+      tags:
+      - auth
+securityDefinitions:
+  ApiKeyAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
+tags:
+- name: auth
+- name: lists
+- name: items
