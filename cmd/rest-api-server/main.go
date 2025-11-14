@@ -43,13 +43,7 @@ func main() {
 	}
 
 	// Database: postgresql
-	DB, err := postgresql.NewPostgresDB(&postgresql.Config{
-		Host:     cfg.DB_HOST,
-		Port:     cfg.DB_PORT,
-		Username: cfg.DB_USERNAME,
-		Password: cfg.DB_PASSWORD,
-		DBName:   cfg.DB_NAME,
-	})
+	DB, err := postgresql.NewPostgresDB(&cfg)
 	if err != nil {
 		logrus.Fatalf("failed to initialize db: %s", err.Error())
 	}
